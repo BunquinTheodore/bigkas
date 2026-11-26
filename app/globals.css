@@ -1,17 +1,21 @@
 @import "tailwindcss";
 
-/* Colour tokens from docs/mockups/apple-style.html. Light and dark follow the device. */
+/*
+ * Colour tokens from docs/mockups/apple-style.html. Light and dark follow the device.
+ * Secondary and tint text are a step stronger than the mockup so that they keep a 4.5 to 1
+ * contrast on the grey fill behind pills, buttons and the current list item.
+ */
 :root {
   --font-stack: -apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif;
   --bg: #f2f2f7;
   --card: #ffffff;
   --label: #1d1d1f;
-  --secondary: #6e6e73;
+  --secondary: #636366;
   --separator: rgba(60, 60, 67, 0.16);
   --fill: rgba(120, 120, 128, 0.12);
   --bar: rgba(249, 249, 251, 0.72);
   --tint: #0071e3;
-  --tint-text: #0066cc;
+  --tint-text: #005fc0;
   --record: #ff3b30;
   --danger: #d70015;
   --green: #1e7a34;
@@ -29,7 +33,7 @@
     --separator: rgba(84, 84, 88, 0.6);
     --fill: rgba(120, 120, 128, 0.26);
     --bar: rgba(22, 22, 23, 0.72);
-    --tint-text: #2997ff;
+    --tint-text: #4da3ff;
     --record: #ff453a;
     --danger: #ff453a;
     --green: #30d158;

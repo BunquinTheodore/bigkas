@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { buttonClass } from "@/components/ui/Button";
+import { Button, buttonClass } from "@/components/ui/Button";
 import { Screen } from "@/components/ui/Screen";
 import { TopBar } from "@/components/ui/TopBar";
 import { useSignOut } from "@/components/useSignOut";
@@ -31,18 +31,40 @@ function Missing() {
   );
 }
 
+function Unreadable() {
+  const signOut = useSignOut();
+  return (
+    <>
+      <TopBar title="bigkas" onSignOut={signOut} />
+      <Screen title="This session could not load" width="narrow">
+        <p className="text-center">The saved demo data could not be read. Reload the page to try again.</p>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Link href="/sessions" className={buttonClass("tinted")}>
+            Sessions
+          </Link>
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Reload
+          </Button>
+        </div>
+      </Screen>
+    </>
+  );
+}
+
+/** "missing" also covers an attempt that belongs to someone else. "failed" is a read error. */
+type Loaded = Attempt | "loading" | "missing" | "failed";
+
 /** Loads an attempt and only shows it to the profile that owns it. */
 export function AttemptGate({ attemptId, repo, email, children }: AttemptGateProps) {
-  // undefined while loading, null when it is missing or belongs to someone else.
-  const [attempt, setAttempt] = useState<Attempt | null | undefined>(undefined);
+  const [attempt, setAttempt] = useState<Loaded>("loading");
 
   const load = useCallback(async () => {
     try {
       const found = await repo.getAttempt(attemptId);
-      setAttempt(found && found.email === email ? found : null);
+      setAttempt(found && found.email === email ? found : "missing");
     } catch (error) {
       console.error("Could not load the session", error);
-      setAttempt(null);
+      setAttempt("failed");
     }
   }, [repo, attemptId, email]);
 
@@ -50,6 +72,8 @@ export function AttemptGate({ attemptId, repo, email, children }: AttemptGatePro
     void load();
   }, [load]);
 
-  if (attempt === undefined) return null;
-  return attempt ? <>{children(attempt, load)}</> : <Missing />;
+  if (attempt === "loading") return null;
+  if (attempt === "missing") return <Missing />;
+  if (attempt === "failed") return <Unreadable />;
+  return <>{children(attempt, load)}</>;
 }

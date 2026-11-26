@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, type Ref } from "react";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useNow } from "@/components/useNow";
@@ -8,12 +9,20 @@ import { usePlayback } from "@/components/usePlayback";
 import { MAX_RECORDING_SECONDS } from "@/lib/config";
 import { LevelMeter } from "./LevelMeter";
 import { useRecorder, type SaveTake } from "./useRecorder";
+import { useStepFocus } from "./useStepFocus";
 
 const clock = (seconds: number) => `0:${String(Math.floor(seconds)).padStart(2, "0")}`;
 
-function RecordButton({ recording, onClick }: { recording: boolean; onClick: () => void }) {
+interface RecordButtonProps {
+  ref: Ref<HTMLButtonElement>;
+  recording: boolean;
+  onClick: () => void;
+}
+
+function RecordButton({ ref, recording, onClick }: RecordButtonProps) {
   return (
     <button
+      ref={ref}
       type="button"
       aria-label={recording ? "Stop" : "Record"}
       onClick={onClick}
@@ -59,21 +68,26 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
   const url = useObjectUrl(take?.wav ?? null);
   const play = usePlayback(url);
   const message = state.name === "ready" || state.name === "review" ? state.message : null;
+  const recordButton = useRef<HTMLButtonElement>(null);
+  const readyText = useRef<HTMLParagraphElement>(null);
+  useStepFocus(state.name, recordButton, readyText);
 
   return (
     <Card className="flex min-h-[320px] flex-col items-center justify-center gap-4">
       <LevelMeter read={level} />
       {take ? (
         <>
-          <p className="text-secondary">Answer ready, {clock(take.durationMs / 1000)}</p>
+          <p ref={readyText} tabIndex={-1} className="text-secondary">
+            Answer ready, {clock(take.durationMs / 1000)}
+          </p>
           <div className="grid w-full grid-cols-3 gap-2">
-            <Button className="px-2" disabled={!url} onClick={play}>
+            <Button className="px-2!" disabled={!url} onClick={play}>
               Play
             </Button>
-            <Button className="px-2" disabled={state.name === "saving"} onClick={redo}>
+            <Button className="px-2!" disabled={state.name === "saving"} onClick={redo}>
               Redo
             </Button>
-            <Button variant="primary" className="px-2" disabled={state.name === "saving"} onClick={submit}>
+            <Button variant="primary" className="px-2!" disabled={state.name === "saving"} onClick={submit}>
               Submit
             </Button>
           </div>
@@ -84,7 +98,11 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
         </p>
       ) : (
         <>
-          <RecordButton recording={state.name === "recording"} onClick={state.name === "recording" ? stop : record} />
+          <RecordButton
+            ref={recordButton}
+            recording={state.name === "recording"}
+            onClick={state.name === "recording" ? stop : record}
+          />
           <Timer startedAt={state.name === "recording" ? state.startedAt : null} />
           {state.name === "ready" && <UploadButton onFile={upload} />}
         </>

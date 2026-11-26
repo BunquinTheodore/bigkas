@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { Pill } from "@/components/ui/Pill";
 import { Screen } from "@/components/ui/Screen";
 import { summarize } from "@/lib/results";
 import type { Repository } from "@/lib/store/repository";
-import type { Attempt, Category } from "@/lib/types";
+import type { Attempt } from "@/lib/types";
 import { ResultsShell } from "./ResultsShell";
 import { summaryRows, summaryTiles } from "./rows";
 import { ScoreSection } from "./ScoreSection";
+import { useCategory } from "./useCategory";
 import { useResults } from "./useResults";
 
 interface SessionSummaryProps {
@@ -19,7 +19,7 @@ interface SessionSummaryProps {
 
 /** Means over the ten items, each with how many items contributed. */
 export function SessionSummary({ attempt, repo, title }: SessionSummaryProps) {
-  const [category, setCategory] = useState<Category>("pronunciation");
+  const [category, setCategory] = useCategory();
   const { data, failed } = useResults(repo, attempt);
   const summary = data && summarize(data.results);
 

@@ -1,6 +1,6 @@
 # bigkas proof of concept: design
 
-Date: 26 November 2026. Status: approved on 26 November 2026. Nothing is built yet.
+Date: 26 November 2026. Status: approved and built on 26 November 2026.
 
 The screen by screen flow is in [flow.md](../../flow.md).
 

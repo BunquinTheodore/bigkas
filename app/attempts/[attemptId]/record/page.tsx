@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AttemptGate } from "@/components/AttemptGate";
 import { Guard } from "@/components/Guard";
 import { RecordPanel } from "@/components/recorder/RecordPanel";
@@ -36,17 +36,36 @@ function Progress({ done }: { done: number }) {
   );
 }
 
+/** The other tab saved this item, or the demo data was erased: either way the screen is out of date. */
+const isStale = (error: unknown) =>
+  error instanceof StoreError && (error.code === "already-submitted" || error.code === "not-found");
+
+/** Moves focus to the heading when the next item appears, so keyboard users are not dropped. */
+function useNewItemFocus(position: number) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  const shown = useRef(position);
+
+  useEffect(() => {
+    if (shown.current === position) return;
+    shown.current = position;
+    heading.current?.focus();
+  }, [position]);
+
+  return heading;
+}
+
 function Recording({ attempt, repo, reload }: RecordingProps) {
   const router = useRouter();
   const signOut = useSignOut();
   const submitted = attempt.submittedAt !== null;
+  const position = attempt.submittedCount + 1;
+  const heading = useNewItemFocus(position);
 
   useEffect(() => {
     if (submitted) router.replace(`/attempts/${attempt.id}`);
   }, [submitted, attempt.id, router]);
 
   if (submitted) return null;
-  const position = attempt.submittedCount + 1;
   const item = getItem(attempt.itemIds[position - 1]);
   const session = SESSIONS.find((s) => s.id === attempt.sessionId);
 
@@ -54,8 +73,7 @@ function Recording({ attempt, repo, reload }: RecordingProps) {
     try {
       await repo.submitResponse({ attemptId: attempt.id, position, source, wav, durationMs }, Date.now());
     } catch (error) {
-      // Already saved from another tab: move on to the next item.
-      if (!(error instanceof StoreError && error.code === "already-submitted")) throw error;
+      if (!isStale(error)) throw error;
     }
     await reload();
   }
@@ -66,7 +84,7 @@ function Recording({ attempt, repo, reload }: RecordingProps) {
       <main>
         <Container className="pt-6 pb-12">
           <div className="flex items-center justify-between gap-3">
-            <h1 className="text-[22px] font-bold tracking-tight">
+            <h1 ref={heading} tabIndex={-1} className="text-[22px] font-bold tracking-tight">
               Item {position} of {ITEMS_PER_ATTEMPT}
             </h1>
             <Pill>{item.type === "sentence" ? "Sentence" : "Phrase fragment"}</Pill>

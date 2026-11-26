@@ -10,7 +10,23 @@ import { useNow } from "@/components/useNow";
 import { useSignOut } from "@/components/useSignOut";
 import { ITEMS_PER_ATTEMPT, SESSIONS } from "@/lib/config";
 import { attemptStatus } from "@/lib/status";
+import { StoreError } from "@/lib/store/repository";
 import type { Attempt, SessionId } from "@/lib/types";
+
+/** The participant code and the signed in address. A long address wraps at the @ first. */
+function SignedIn({ code, email }: { code: string | null; email: string }) {
+  const at = email.lastIndexOf("@");
+  return (
+    <>
+      Participant {code}
+      <span className="block wrap-anywhere">
+        {email.slice(0, at)}
+        <wbr />
+        {email.slice(at)}
+      </span>
+    </>
+  );
+}
 
 function Sessions({ profile, repo }: GuardContext) {
   const router = useRouter();
@@ -36,6 +52,8 @@ function Sessions({ profile, repo }: GuardContext) {
       router.push(recording ? `/attempts/${attempt.id}/record` : `/attempts/${attempt.id}`);
     } catch (failure) {
       console.error("Could not start the session", failure);
+      // The profile is gone, for example erased in another tab, so trying again cannot work.
+      if (failure instanceof StoreError && failure.code === "not-found") return signOut();
       setError("The session could not be started. Try again.");
     }
   }
@@ -43,7 +61,7 @@ function Sessions({ profile, repo }: GuardContext) {
   return (
     <>
       <TopBar title="bigkas" onSignOut={signOut} />
-      <Screen title="Reading sessions" subtitle={`Participant ${profile.participantCode}`}>
+      <Screen title="Reading sessions" subtitle={<SignedIn code={profile.participantCode} email={profile.email} />}>
         {attempts && (
           <div className="grid gap-4 three:grid-cols-3">
             {SESSIONS.map((session) => {

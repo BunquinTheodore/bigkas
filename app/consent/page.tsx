@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Screen } from "@/components/ui/Screen";
 import { TopBar } from "@/components/ui/TopBar";
 import { useSignOut } from "@/components/useSignOut";
+import { StoreError } from "@/lib/store/repository";
 
 const POINTS = [
   "This is a demo. Your answers stay in this browser and are not sent anywhere.",
@@ -19,10 +20,19 @@ function ConsentForm({ profile, repo }: GuardContext) {
   const router = useRouter();
   const signOut = useSignOut();
   const [adult, setAdult] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function agree() {
-    await repo.giveConsent(profile.email, Date.now());
-    router.replace("/sessions");
+    setFailed(false);
+    try {
+      await repo.giveConsent(profile.email, Date.now());
+      router.replace("/sessions");
+    } catch (error) {
+      console.error("Consent was not saved", error);
+      // The profile is gone, for example erased in another tab, so trying again cannot work.
+      if (error instanceof StoreError && error.code === "not-found") return signOut();
+      setFailed(true);
+    }
   }
 
   return (
@@ -44,6 +54,11 @@ function ConsentForm({ profile, repo }: GuardContext) {
             Agree
           </Button>
         </div>
+        {failed && (
+          <p role="alert" className="mt-4 text-center text-[15px] text-danger">
+            Your consent was not saved. Try Agree again.
+          </p>
+        )}
       </Screen>
     </>
   );

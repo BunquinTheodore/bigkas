@@ -7,6 +7,7 @@ import {
   SILENCE_PEAK,
   TARGET_SAMPLE_RATE,
 } from "../config";
+import type { Source } from "../types";
 import { encodeWav } from "./wav";
 
 export type Rejection = "unsupported" | "unreadable" | "too-large" | "too-short" | "too-long" | "silent";
@@ -87,18 +88,24 @@ async function resample(samples: Float32Array, sampleRate: number): Promise<Floa
 
 const hasWebAudio = () => typeof AudioContext !== "undefined" && typeof OfflineAudioContext !== "undefined";
 
-export async function processAudio(blob: Blob): Promise<ProcessResult> {
+/**
+ * Uploads over the time limit are refused. A recording is cut to the limit instead, because the
+ * stop timer can fire late on a busy phone and the take must not be lost.
+ */
+export async function processAudio(blob: Blob, source: Source = "uploaded"): Promise<ProcessResult> {
+  const upload = source === "uploaded";
   if (blob.size > MAX_UPLOAD_BYTES) return { ok: false, reason: "too-large" };
   if (!hasWebAudio()) return { ok: false, reason: "unsupported" };
   // A long file can be small on disk but huge once decoded, enough to crash a phone.
-  if (isTooLong(await reportedSeconds(blob))) return { ok: false, reason: "too-long" };
+  if (upload && isTooLong(await reportedSeconds(blob))) return { ok: false, reason: "too-long" };
   const decoded = await decode(blob);
   if (!decoded) return { ok: false, reason: "unreadable" };
-  if (isTooLong(decoded.duration)) return { ok: false, reason: "too-long" };
+  if (upload && isTooLong(decoded.duration)) return { ok: false, reason: "too-long" };
   const channels = Array.from({ length: decoded.numberOfChannels }, (_, c) => decoded.getChannelData(c));
-  const mono = downmix(channels);
+  const whole = downmix(channels);
+  const mono = upload ? whole : whole.subarray(0, MAX_RECORDING_SECONDS * decoded.sampleRate);
   const reason = rejectSamples(mono, decoded.sampleRate);
   if (reason) return { ok: false, reason };
   const wav = encodeWav(await resample(mono, decoded.sampleRate), TARGET_SAMPLE_RATE);
-  return { ok: true, wav, durationMs: Math.round(decoded.duration * 1000) };
+  return { ok: true, wav, durationMs: Math.round((mono.length / decoded.sampleRate) * 1000) };
 }

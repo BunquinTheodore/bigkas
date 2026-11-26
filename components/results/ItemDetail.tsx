@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
@@ -11,10 +10,11 @@ import { usePlayback } from "@/components/usePlayback";
 import { ITEMS_PER_ATTEMPT } from "@/lib/config";
 import { getItem } from "@/lib/items";
 import type { Repository } from "@/lib/store/repository";
-import type { Attempt, Category } from "@/lib/types";
+import type { Attempt } from "@/lib/types";
 import { ResultsShell } from "./ResultsShell";
 import { itemRows, itemTiles } from "./rows";
 import { ScoreSection } from "./ScoreSection";
+import { useCategory } from "./useCategory";
 import { useResults } from "./useResults";
 
 function StepLink({ testId, label, href }: { testId: string; label: string; href: string | null }) {
@@ -40,7 +40,7 @@ interface ItemDetailProps {
 
 /** One answer: what was read, how it was given, its scores and measurements. */
 export function ItemDetail({ attempt, repo, position }: ItemDetailProps) {
-  const [category, setCategory] = useState<Category>("pronunciation");
+  const [category, setCategory] = useCategory();
   const { data, failed } = useResults(repo, attempt);
   const response = data?.responses.find((r) => r.position === position);
   const result = data?.results.find((r) => r.position === position);

@@ -9,8 +9,8 @@ import type { Source } from "@/lib/types";
 
 export type SaveTake = (wav: ArrayBuffer, durationMs: number, source: Source) => Promise<void>;
 
-const check = (blob: Blob): Promise<ProcessResult> =>
-  processAudio(blob).catch((error: unknown) => {
+const check = (blob: Blob, source: Source): Promise<ProcessResult> =>
+  processAudio(blob, source).catch((error: unknown) => {
     console.error("Audio could not be converted", error);
     return { ok: false, reason: "unreadable" } as const;
   });
@@ -42,7 +42,7 @@ export function useRecorder(save: SaveTake) {
     const recording = take();
     if (!recording) return;
     dispatch({ type: "stop" });
-    dispatch({ type: "processed", result: await check(await recording.stop()), source: "recorded" });
+    dispatch({ type: "processed", result: await check(await recording.stop(), "recorded"), source: "recorded" });
   }, [take]);
 
   const interrupt = useCallback(() => {
@@ -72,7 +72,7 @@ export function useRecorder(save: SaveTake) {
   async function upload(file: File) {
     abandonRequest();
     dispatch({ type: "file" });
-    dispatch({ type: "processed", result: await check(file), source: "uploaded" });
+    dispatch({ type: "processed", result: await check(file, "uploaded"), source: "uploaded" });
   }
 
   async function submit() {

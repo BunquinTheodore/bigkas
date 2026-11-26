@@ -1,6 +1,6 @@
 # bigkas web app flow
 
-This is the planned flow. Nothing is built yet. Rules behind each step are in the [design](superpowers/specs/2026-11-26-bigkas-poc-design.md).
+This is the flow of the app. Rules behind each step are in the [design](superpowers/specs/2026-11-26-bigkas-poc-design.md).
 
 ## 1. Whole app
 

@@ -61,15 +61,13 @@ async function signIn(db: Db, rawEmail: string, role: Role): Promise<Profile> {
   const email = normalizeEmail(rawEmail);
   const tx = db.transaction(["profiles", "meta"], "readwrite");
   const profiles = tx.objectStore("profiles");
-  let profile = (await profiles.get(email)) ?? { email, participantCode: null, consentedAt: null };
-  if (role === "participant" && !profile.participantCode) {
-    const meta = tx.objectStore("meta");
-    const next = ((await meta.get(PARTICIPANT_COUNTER)) ?? 0) + 1;
-    await meta.put(next, PARTICIPANT_COUNTER);
-    profile = { ...profile, participantCode: `P${String(next).padStart(3, "0")}` };
-  }
-  await profiles.put(profile);
-  await tx.done;
+  const found = (await profiles.get(email)) ?? { email, participantCode: null, consentedAt: null };
+  const needsCode = role === "participant" && !found.participantCode;
+  const meta = tx.objectStore("meta");
+  const next = needsCode ? ((await meta.get(PARTICIPANT_COUNTER)) ?? 0) + 1 : 0;
+  const profile = needsCode ? { ...found, participantCode: `P${String(next).padStart(3, "0")}` } : found;
+  // Writes are awaited together with tx.done, so an aborted transaction is reported exactly once.
+  await Promise.all([needsCode && meta.put(next, PARTICIPANT_COUNTER), profiles.put(profile), tx.done]);
   return profile;
 }
 
@@ -78,8 +76,7 @@ async function giveConsent(db: Db, email: string, now: number): Promise<Profile>
   const profile = await tx.store.get(normalizeEmail(email));
   if (!profile) throw new StoreError("not-found");
   const updated = { ...profile, consentedAt: now };
-  await tx.store.put(updated);
-  await tx.done;
+  await Promise.all([tx.store.put(updated), tx.done]);
   return updated;
 }
 
@@ -92,8 +89,11 @@ async function startAttempt(
   now: number,
 ): Promise<Attempt> {
   const email = normalizeEmail(rawEmail);
-  const tx = db.transaction("attempts", "readwrite");
-  const mine = await tx.store.index("email").getAll(email);
+  const tx = db.transaction(["attempts", "profiles"], "readwrite");
+  // No profile means the demo data was erased, for example in another tab.
+  if (!(await tx.objectStore("profiles").get(email))) throw new StoreError("not-found");
+  const attempts = tx.objectStore("attempts");
+  const mine = await attempts.index("email").getAll(email);
   const existing = mine.find((a) => a.sessionId === sessionId);
   if (existing) return existing;
   const attempt: Attempt = {
@@ -105,8 +105,7 @@ async function startAttempt(
     startedAt: now,
     submittedAt: null,
   };
-  await tx.store.add(attempt);
-  await tx.done;
+  await Promise.all([attempts.add(attempt), tx.done]);
   return attempt;
 }
 
@@ -118,22 +117,23 @@ async function submitResponse(db: Db, input: NewResponse, now: number): Promise<
   if (!attempt) throw new StoreError("not-found");
   if (input.position <= attempt.submittedCount) throw new StoreError("already-submitted");
   if (input.position !== attempt.submittedCount + 1) throw new StoreError("out-of-order");
-  await tx.objectStore("responses").put({ ...input, submittedAt: now });
   const updated: Attempt = {
     ...attempt,
     submittedCount: input.position,
     submittedAt: input.position === ITEMS_PER_ATTEMPT ? now : null,
   };
-  await attempts.put(updated);
-  await tx.done;
+  await Promise.all([
+    tx.objectStore("responses").put({ ...input, submittedAt: now }),
+    attempts.put(updated),
+    tx.done,
+  ]);
   return updated;
 }
 
 async function clearAll(db: Db): Promise<void> {
   const names = ["profiles", "attempts", "responses", "meta"] as const;
   const tx = db.transaction(names, "readwrite");
-  await Promise.all(names.map((name) => tx.objectStore(name).clear()));
-  await tx.done;
+  await Promise.all([...names.map((name) => tx.objectStore(name).clear()), tx.done]);
 }
 
 export async function openRepository(name = "bigkas"): Promise<Repository> {

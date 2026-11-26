@@ -16,6 +16,7 @@ const ROLES = [
 ] as const;
 
 const BLOCKED = "This browser is blocking storage, so the demo cannot run. Leave private mode or allow site data.";
+const FAILED = "Sign in did not work. Try again, or check that this browser allows site data.";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function SignInPage() {
 
   async function signIn(event: FormEvent) {
     event.preventDefault();
+    setError(null);
     try {
       const repo = await getRepository();
       const profile = await repo.signIn(email, role);
@@ -37,7 +39,7 @@ export default function SignInPage() {
       router.push(role === "researcher" ? "/research" : participantPage);
     } catch (failure) {
       console.error("Sign in failed", failure);
-      setError(BLOCKED);
+      setError(FAILED);
     }
   }
 

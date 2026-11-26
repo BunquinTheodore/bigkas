@@ -4,7 +4,7 @@ import { Container } from "./Container";
 
 interface ScreenProps {
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   /** "auth" and "narrow" are single centred cards. "full" uses the whole container. */
   width?: "auth" | "narrow" | "full";
   children: ReactNode;

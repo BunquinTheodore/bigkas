@@ -1,4 +1,4 @@
-import { test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { encodeWav } from "../../lib/audio/wav";
 
 /** Signs in from the start page. Participants also agree to the consent notice. */
@@ -30,4 +30,17 @@ export function toneFile(seconds = 2, peak = 0.3) {
     (_, i) => peak * Math.sin((2 * Math.PI * 440 * i) / rate),
   );
   return { name: "tone.wav", mimeType: "audio/wav", buffer: Buffer.from(encodeWav(samples, rate)) };
+}
+
+/** Answers every item with an upload and waits for the results. Call page.clock.install() first. */
+export async function completeSession(page: Page) {
+  await page.getByRole("button", { name: "Start" }).first().click();
+  for (let n = 1; n <= 10; n++) {
+    await expect(page.getByRole("heading", { name: `Item ${n} of 10` })).toBeVisible();
+    await page.getByLabel("Upload audio file").setInputFiles(toneFile());
+    await page.getByRole("button", { name: "Submit" }).click();
+  }
+  await expect(page.getByText("Pending")).toBeVisible();
+  await page.clock.fastForward(31_000);
+  await expect(page.getByText("Simulated")).toBeVisible();
 }

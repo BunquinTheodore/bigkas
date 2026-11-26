@@ -1,4 +1,4 @@
-import type { Measures } from "./types";
+import type { Category, Measures } from "./types";
 
 const UNAVAILABLE = "Unavailable";
 
@@ -19,3 +19,16 @@ export function formatMeasure(key: keyof Measures, value: number | "none" | null
   const { digits, unit } = MEASURE_FORMAT[key];
   return `${value.toFixed(digits)} ${unit}`;
 }
+
+export const CATEGORY_LABELS: Record<Category, string> = {
+  pronunciation: "Pronunciation",
+  fluency: "Fluency",
+  prosody: "Prosody",
+};
+
+export const MEASURE_LABELS: Record<keyof Measures, string> = {
+  speechRate: "Speech rate",
+  pauseLength: "Average pause length",
+  pitch: "Average pitch",
+  intensity: "Mean intensity",
+};

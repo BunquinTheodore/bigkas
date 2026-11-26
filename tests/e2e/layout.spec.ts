@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { signIn } from "./helpers";
+import { completeSession, signIn } from "./helpers";
 import { box, expectNoOverflow, expectSame, viewWidth, WIDTHS } from "./layout";
 
 for (const width of WIDTHS) {
@@ -72,6 +72,53 @@ for (const width of WIDTHS) {
     } else {
       expectSame([text.width, controls.width]);
       expect(controls.y).toBeGreaterThan(text.bottom);
+    }
+    await expectNoOverflow(page);
+  });
+}
+
+for (const width of WIDTHS) {
+  test(`results are balanced at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.clock.install();
+    await signIn(page, "Participant");
+    await completeSession(page);
+    const heading = await box(page.getByRole("heading", { level: 1 }));
+    const list = await box(page.getByTestId("item-list"));
+    const scores = await box(page.getByTestId("score-region"));
+    const barTitle = await box(page.getByTestId("bar-title"));
+    const signOut = await box(page.getByTestId("bar-action"));
+    expectSame([barTitle.x, heading.x, list.x]);
+    expectSame([signOut.right, scores.right]);
+    if (width >= 900) {
+      expectSame([list.y, scores.y]);
+      expectSame([list.width, 240]);
+    } else {
+      expectSame([list.width, scores.width]);
+      expect(list.y).toBeGreaterThan(scores.bottom);
+    }
+    const tiles = page.getByTestId("measure");
+    await expect(tiles).toHaveCount(4);
+    const boxes = await Promise.all([0, 1, 2, 3].map((i) => box(tiles.nth(i))));
+    expectSame(boxes.map((b) => b.width));
+    expectSame(width >= 640 ? boxes.map((b) => b.y) : [boxes[0].y, boxes[1].y]);
+    if (width >= 640) {
+      const columns = page.locator("thead th");
+      const values = await Promise.all([1, 2, 3, 4].map((i) => box(columns.nth(i))));
+      expectSame(values.map((c) => c.width));
+    }
+    await expectNoOverflow(page);
+
+    await page.getByRole("link", { name: /^Item 1\b/ }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Item 1 of 10" })).toBeVisible();
+    const previous = await box(page.getByTestId("previous"));
+    const next = await box(page.getByTestId("next"));
+    expectSame([previous.width, next.width]);
+    expectSame([previous.y, next.y]);
+    if (width >= 640) {
+      const columns = page.locator("thead th");
+      const values = await Promise.all([1, 2, 3, 4].map((i) => box(columns.nth(i))));
+      expectSame(values.map((c) => c.width));
     }
     await expectNoOverflow(page);
   });

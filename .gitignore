@@ -1,0 +1,27 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Secrets and hosting
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Recordings and private material
+*.wav
+*.webm
+*.m4a
+*.mp3
+*.ogg
+*.pdf
+private/
+
+# System files
+.DS_Store
+Thumbs.db

@@ -12,11 +12,14 @@ A demo web portal for calibrated scoring of read aloud English: pronunciation, f
 4. Native, normalized, linear and ridge scores from GOPT, HuBERT Base and wav2vec 2.0 Large.
 5. Speech rate, average pause length, average pitch and mean intensity.
 6. A researcher report comparing scores with human ratings on sample data.
+7. An Apple style interface for phones, tablets and laptops.
 
 ## Documents
 
 1. [Design](docs/superpowers/specs/2026-11-26-bigkas-poc-design.md)
 2. [Web app flow](docs/flow.md)
+3. [Implementation plan](docs/superpowers/plans/2026-11-26-bigkas-demo.md)
+4. [Interface mockups](docs/mockups/apple-style.html), open the file in a browser
 
 ## Planned stack
 

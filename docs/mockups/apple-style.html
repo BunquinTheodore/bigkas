@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bigkas mockups</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg: #f2f2f7; --card: #ffffff; --label: #1d1d1f; --secondary: #6e6e73;
+  --separator: rgba(60,60,67,.16); --fill: rgba(120,120,128,.12);
+  --bar: rgba(249,249,251,.72); --tint: #0071e3; --tint-text: #0066cc;
+  --record: #ff3b30; --green: #1e7a34; --orange: #a04800; --page: #e5e5ea;
+  --raised: #ffffff;
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --card: #1c1c1e; --label: #f5f5f7; --secondary: #a1a1a6;
+  --separator: rgba(84,84,88,.6); --fill: rgba(120,120,128,.26);
+  --bar: rgba(22,22,23,.72); --tint: #0071e3; --tint-text: #2997ff;
+  --record: #ff453a; --green: #30d158; --orange: #ff9f0a; --page: #111113;
+  --raised: #48484a;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --bg: #000000; --card: #1c1c1e; --label: #f5f5f7; --secondary: #a1a1a6;
+    --separator: rgba(84,84,88,.6); --fill: rgba(120,120,128,.26);
+    --bar: rgba(22,22,23,.72); --tint: #0071e3; --tint-text: #2997ff;
+    --record: #ff453a; --green: #30d158; --orange: #ff9f0a; --page: #111113;
+    --raised: #48484a;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+  background: var(--page); color: var(--label); font-size: 17px; line-height: 1.35;
+  hyphens: none; padding: 32px 20px 48px; -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1234px; margin: 0 auto; }
+header { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: end; margin-bottom: 24px; }
+header h1 { font-size: 34px; font-weight: 700; letter-spacing: -.02em; }
+.note { color: var(--secondary); font-size: 15px; }
+.segmented { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; background: var(--fill); border-radius: 999px; padding: 3px; }
+.segmented button { border: 0; background: transparent; color: var(--label); font-family: inherit; font-size: 13px; font-weight: 600; line-height: 1; min-height: 38px; padding: 0 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.segmented.full button { padding: 0 4px; }
+.segmented button[aria-pressed="true"] { background: var(--raised); box-shadow: 0 1px 4px rgba(0,0,0,.16); }
+.segmented.full { display: grid; width: 100%; }
+button { transition: transform .18s ease, background-color .18s ease; }
+button:active { transform: scale(.97); }
+button:focus-visible { outline: 3px solid var(--tint-text); outline-offset: 2px; }
+.phones { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+figure { width: 390px; max-width: 100%; }
+figcaption { font-size: 13px; font-weight: 600; color: var(--secondary); padding: 0 4px 10px; }
+.screen { background: var(--bg); border-radius: 36px; overflow: hidden; height: 780px; box-shadow: 0 20px 50px rgba(0,0,0,.18); display: flex; flex-direction: column; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; min-height: 60px; background: var(--bar); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--separator); }
+.bar strong { font-size: 17px; font-weight: 600; }
+.link { border: 0; background: none; color: var(--tint-text); font: inherit; min-height: 44px; min-width: 44px; cursor: pointer; }
+.body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+h2 { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+.card { background: var(--card); border-radius: 20px; padding: 16px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.list .row { padding: 14px 0; border-top: 1px solid var(--separator); }
+.list .row:first-child { border-top: 0; padding-top: 2px; }
+.list .row:last-child { padding-bottom: 2px; }
+.title { font-weight: 600; }
+.sub { color: var(--secondary); font-size: 13px; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--fill); white-space: nowrap; }
+.pill.done { color: var(--green); }
+.pill.going { color: var(--orange); }
+.pill.sim { color: var(--tint-text); }
+.btn { border: 0; border-radius: 999px; min-height: 44px; padding: 0 18px; font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; background: var(--fill); color: var(--tint-text); cursor: pointer; white-space: nowrap; }
+.btn.primary { background: var(--tint); color: #fff; }
+.list .btn { width: 124px; padding: 0; }
+.progress { height: 6px; border-radius: 999px; background: var(--fill); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 40%; background: var(--tint); }
+.prompt { font-size: 28px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; text-align: center; padding: 34px 8px; }
+.meter { display: flex; align-items: center; justify-content: center; gap: 4px; height: 56px; }
+.meter i { width: 5px; border-radius: 999px; background: var(--secondary); opacity: .45; }
+.record { align-self: center; width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--secondary); background: transparent; display: grid; place-items: center; cursor: pointer; }
+.record i { width: 64px; height: 64px; border-radius: 50%; background: var(--record); }
+.center { text-align: center; }
+.timer { font-variant-numeric: tabular-nums; color: var(--secondary); }
+.three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.three .btn { padding: 0; }
+.model h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.four { display: grid; grid-template-columns: 1.35fr 1.25fr 1fr 1fr; gap: 8px; }
+.value { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.value small { font-size: 12px; font-weight: 500; color: var(--secondary); }
+.key { font-size: 12px; color: var(--secondary); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.desktop { margin-top: 40px; }
+.desktop .screen { height: auto; border-radius: 24px; }
+.desktop .body { padding: 24px 28px 28px; }
+.headline { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 10px 8px; border-top: 1px solid var(--separator); font-size: 15px; }
+th { color: var(--secondary); font-size: 13px; font-weight: 600; border-top: 0; }
+.l { text-align: left; }
+td.name, td.top { font-weight: 600; vertical-align: top; }
+.desktop figure { width: 100%; }
+.cards { display: none; }
+.methods { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 8px; margin-top: 12px; font-variant-numeric: tabular-nums; font-size: 15px; }
+@media (max-width: 700px) {
+  table { display: none; }
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+  .desktop .body { padding: 16px 20px 20px; }
+  .desktop figure { width: 390px; margin: 0 auto; }
+}
+@media (max-width: 420px) {
+  body { padding: 20px 10px 32px; }
+  .screen { border-radius: 26px; }
+  .body, .bar { padding-left: 14px; padding-right: 14px; }
+  .segmented button { padding: 0 8px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { button { transition: none; } button:active { transform: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>bigkas mockups</h1>
+      <p class="note">Layout preview. All numbers are placeholders and nothing here is built yet.</p>
+    </div>
+    <div class="segmented" id="theme" role="group" aria-label="Theme">
+      <button data-theme-value="auto" aria-pressed="true">Auto</button>
+      <button data-theme-value="light" aria-pressed="false">Light</button>
+      <button data-theme-value="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <div class="phones">
+    <figure>
+      <figcaption>Reading sessions</figcaption>
+      <div class="screen">
+        <div class="bar"><strong>bigkas</strong><button class="link">Sign out</button></div>
+        <div class="body">
+          <div><h2>Reading sessions</h2><p class="sub">Participant P001</p></div>
+          <div class="card list">
+            <div class="row"><div><p class="title">Session A</p><span class="pill done">Completed</span></div><button class="btn">View results</button></div>
+            <div class="row"><div><p class="title">Session B</p><span class="pill going">In progress 4 of 10</span></div><button class="btn primary">Resume</button></div>
+            <div class="row"><div><p class="title">Session C</p><span class="pill">Not started</span></div><button class="btn">Start</button></div>
+          </div>
+          <p class="sub">Each session has 10 items. One attempt per session.</p>
+        </div>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>Recording an item</figcaption>
+      <div class="screen">
+        <div class="bar"><button class="link">Sessions</button><strong>Session B</strong><button class="link">Sign out</button></div>
+        <div class="body">
+          <div class="row"><span class="title">Item 5 of 10</span><span class="pill">Sample sentence</span></div>
+          <div class="progress"><i></i></div>
+          <div class="card prompt">Tell me about a time you worked in a team.</div>
+          <div class="meter" aria-hidden="true">
+            <i style="height:10px"></i><i style="height:18px"></i><i style="height:30px"></i><i style="height:22px"></i><i style="height:44px"></i><i style="height:52px"></i><i style="height:36px"></i><i style="height:24px"></i><i style="height:40px"></i><i style="height:28px"></i><i style="height:16px"></i><i style="height:10px"></i>
+          </div>
+          <button class="record" aria-label="Record"><i></i></button>
+          <p class="center timer">0:00 / 0:30</p>
+          <p class="center"><button class="link">Upload audio file</button></p>
+          <div class="card">
+            <p class="sub">After recording</p>
+            <div class="three"><button class="btn">Play</button><button class="btn">Redo</button><button class="btn primary">Submit</button></div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>Item results</figcaption>
+      <div class="screen">
+        <div class="bar"><button class="link">Summary</button><strong>Item 5 of 10</strong><button class="link">Next</button></div>
+        <div class="body">
+          <div class="row"><span class="pill sim">Simulated</span><span class="sub">Recorded</span></div>
+          <div class="segmented full" role="group" aria-label="Category">
+            <button aria-pressed="true">Pronunciation</button><button aria-pressed="false">Fluency</button><button aria-pressed="false">Prosody</button>
+          </div>
+          <div class="card model"><h3>GOPT</h3><div class="four">
+            <div><p class="key">Native</p><p class="value">0.00 <small>of 2</small></p></div>
+            <div><p class="key">Normalized</p><p class="value">0.00</p></div>
+            <div><p class="key">Linear</p><p class="value">0.00</p></div>
+            <div><p class="key">Ridge</p><p class="value">0.00</p></div>
+          </div></div>
+          <div class="card model"><h3>HuBERT Base</h3><div class="four">
+            <div><p class="key">Native</p><p class="value">0.00 <small>of 10</small></p></div>
+            <div><p class="key">Normalized</p><p class="value">0.00</p></div>
+            <div><p class="key">Linear</p><p class="value">0.00</p></div>
+            <div><p class="key">Ridge</p><p class="value">0.00</p></div>
+          </div></div>
+          <div class="card model"><h3>wav2vec 2.0 Large</h3><div class="four">
+            <div><p class="key">Native</p><p class="value">0.00 <small>of 10</small></p></div>
+            <div><p class="key">Normalized</p><p class="value">0.00</p></div>
+            <div><p class="key">Linear</p><p class="value">0.00</p></div>
+            <div><p class="key">Ridge</p><p class="value">0.00</p></div>
+          </div></div>
+          <div class="card two">
+            <div><p class="key">Speech rate</p><p class="value">0.0 <small>syll/s</small></p></div>
+            <div><p class="key">Average pause length</p><p class="value">0.00 <small>s</small></p></div>
+            <div><p class="key">Average pitch</p><p class="value">000 <small>Hz</small></p></div>
+            <div><p class="key">Mean intensity</p><p class="value">00 <small>dB</small></p></div>
+          </div>
+        </div>
+      </div>
+    </figure>
+  </div>
+
+  <div class="desktop">
+    <figure>
+      <figcaption>Agreement report, researcher view</figcaption>
+      <div class="screen">
+        <div class="bar"><strong>bigkas</strong><button class="link">Sign out</button></div>
+        <div class="body">
+          <h2>Agreement with human ratings</h2>
+          <div class="headline">
+            <span class="pill sim">Sample data</span>
+            <div class="segmented" role="group" aria-label="Category">
+              <button aria-pressed="false">Pronunciation</button><button aria-pressed="true">Fluency</button><button aria-pressed="false">Prosody</button>
+            </div>
+          </div>
+          <div class="card">
+            <table>
+              <thead><tr><th class="l">Model</th><th class="l">Method</th><th>MAE</th><th>RMSE</th><th>Spearman</th><th>Coverage</th></tr></thead>
+              <tbody>
+                <tr><td class="name l" rowspan="3">GOPT</td><td class="l">Baseline</td><td>0.000</td><td>0.000</td><td>0.000</td><td class="top" rowspan="3">00%</td></tr>
+                <tr><td class="l">Linear</td><td>0.000</td><td>0.000</td><td>0.000</td></tr>
+                <tr><td class="l">Ridge</td><td>0.000</td><td>0.000</td><td>0.000</td></tr>
+                <tr><td class="name l" rowspan="3">HuBERT Base</td><td class="l">Baseline</td><td>0.000</td><td>0.000</td><td>0.000</td><td class="top" rowspan="3">00%</td></tr>
+                <tr><td class="l">Linear</td><td>0.000</td><td>0.000</td><td>0.000</td></tr>
+                <tr><td class="l">Ridge</td><td>0.000</td><td>0.000</td><td>0.000</td></tr>
+                <tr><td class="name l" rowspan="3">wav2vec 2.0 Large</td><td class="l">Baseline</td><td>0.000</td><td>0.000</td><td>0.000</td><td class="top" rowspan="3">00%</td></tr>
+                <tr><td class="l">Linear</td><td>0.000</td><td>0.000</td><td>0.000</td></tr>
+                <tr><td class="l">Ridge</td><td>0.000</td><td>0.000</td><td>0.000</td></tr>
+              </tbody>
+            </table>
+            <div class="cards">
+              <div class="model"><h3>GOPT</h3><p class="sub">Coverage 00%</p>
+                <div class="methods">
+                  <span class="key">Method</span><span class="key">MAE</span><span class="key">RMSE</span><span class="key">Spearman</span>
+                  <span>Baseline</span><span>0.000</span><span>0.000</span><span>0.000</span>
+                  <span>Linear</span><span>0.000</span><span>0.000</span><span>0.000</span>
+                  <span>Ridge</span><span>0.000</span><span>0.000</span><span>0.000</span>
+                </div>
+              </div>
+              <p class="sub">The other two models follow as cards of the same shape.</p>
+            </div>
+          </div>
+          <p class="sub">These numbers tell nothing about the real models. Baseline is not fitted to the rating scale, so lower error after calibration is expected here.</p>
+          <p class="sub">Held out speakers: 20. Items compared: 000.</p>
+        </div>
+      </div>
+    </figure>
+  </div>
+</div>
+<script>
+document.querySelectorAll(".segmented").forEach(function (group) {
+  group.addEventListener("click", function (event) {
+    var button = event.target.closest("button");
+    if (!button) return;
+    group.querySelectorAll("button").forEach(function (other) {
+      other.setAttribute("aria-pressed", String(other === button));
+    });
+    if (group.id === "theme") document.documentElement.dataset.theme = button.dataset.themeValue;
+  });
+});
+</script>
+</body>
+</html>

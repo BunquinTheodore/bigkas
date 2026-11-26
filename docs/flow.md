@@ -95,6 +95,8 @@ Checks run in this order: signed in with the right role, then consent, then whet
 
 ## 6. Defense walkthrough
 
+Any phone, tablet or laptop can open the Vercel address. Each device keeps its own data, so finish the walkthrough on the device you start on.
+
 1. Sign in as a participant and agree to the notice.
 2. Start a session. Record a few items and upload one.
 3. Submit the tenth item and watch Pending become Processing, then Completed.

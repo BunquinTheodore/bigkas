@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { signIn } from "./helpers";
 import { box, expectNoOverflow, expectSame, viewWidth, WIDTHS } from "./layout";
 
 for (const width of WIDTHS) {
@@ -22,6 +23,31 @@ for (const width of WIDTHS) {
     const agree = await box(page.getByRole("button", { name: "Agree" }));
     expectSame([decline.width, agree.width]);
     expectSame([decline.y, agree.y]);
+    await expectNoOverflow(page);
+  });
+}
+
+for (const width of WIDTHS) {
+  test(`sessions page is balanced at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await signIn(page, "Participant");
+    const heading = await box(page.getByRole("heading", { level: 1, name: "Reading sessions" }));
+    const cards = page.getByTestId("card");
+    await expect(cards).toHaveCount(3);
+    const boxes = await Promise.all([0, 1, 2].map((i) => box(cards.nth(i))));
+    const barTitle = await box(page.getByTestId("bar-title"));
+    const signOut = await box(page.getByTestId("bar-action"));
+    expectSame([barTitle.x, heading.x, boxes[0].x]);
+    expectSame([signOut.right, Math.max(...boxes.map((b) => b.right))]);
+    expectSame(boxes.map((b) => b.width));
+    if (width >= 720) {
+      expectSame(boxes.map((b) => b.y));
+      expectSame(boxes.map((b) => b.height));
+      const buttons = await Promise.all([0, 1, 2].map((i) => box(cards.nth(i).getByRole("button"))));
+      expectSame(buttons.map((b) => b.y));
+    } else {
+      expect(boxes[1].y).toBeGreaterThan(boxes[0].bottom);
+    }
     await expectNoOverflow(page);
   });
 }

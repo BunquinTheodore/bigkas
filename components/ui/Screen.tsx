@@ -4,6 +4,7 @@ import { Container } from "./Container";
 
 interface ScreenProps {
   title: string;
+  subtitle?: string;
   /** "auth" and "narrow" are single centred cards. "full" uses the whole container. */
   width?: "auth" | "narrow" | "full";
   children: ReactNode;
@@ -11,12 +12,13 @@ interface ScreenProps {
 
 const CENTRED = { auth: "max-w-[400px]", narrow: "max-w-[560px]" };
 
-export function Screen({ title, width = "full", children }: ScreenProps) {
+export function Screen({ title, subtitle, width = "full", children }: ScreenProps) {
   if (width === "full") {
     return (
       <main>
         <Container className="pt-6 pb-12">
           <h1 className="text-[30px] leading-tight font-bold tracking-tight sm:text-[34px]">{title}</h1>
+          {subtitle && <p className="mt-1 text-[15px] text-secondary">{subtitle}</p>}
           <div className="mt-6">{children}</div>
         </Container>
       </main>

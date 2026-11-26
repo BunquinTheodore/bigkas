@@ -123,3 +123,19 @@ for (const width of WIDTHS) {
     await expectNoOverflow(page);
   });
 }
+
+for (const width of WIDTHS) {
+  test(`agreement report is aligned at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await signIn(page, "Researcher");
+    const heading = await box(page.getByRole("heading", { level: 1 }));
+    const report = await box(page.getByTestId("report"));
+    const barTitle = await box(page.getByTestId("bar-title"));
+    const signOut = await box(page.getByTestId("bar-action"));
+    expectSame([barTitle.x, heading.x, report.x]);
+    expectSame([signOut.right, report.right]);
+    await expectNoOverflow(page);
+    await page.getByRole("button", { name: "Prosody" }).click();
+    await expectNoOverflow(page);
+  });
+}

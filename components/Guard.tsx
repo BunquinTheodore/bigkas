@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { PageSkeleton } from "@/components/ui/Skeleton";
 import { getRepository } from "@/lib/store/client";
 import { readCurrent } from "@/lib/store/current";
 import type { Repository } from "@/lib/store/repository";
@@ -43,5 +44,5 @@ export function Guard({ role, requireConsent = role === "participant", children 
     };
   }, [role, requireConsent, router]);
 
-  return context ? <>{children(context)}</> : null;
+  return context ? <>{children(context)}</> : <PageSkeleton />;
 }

@@ -39,7 +39,7 @@ function ItemList({ attempt, current }: Omit<ResultsShellProps, "children">) {
   const base = `/attempts/${attempt.id}`;
   return (
     <nav aria-label="Items" className="min-w-0">
-      <div data-testid="item-list" className="flex flex-col gap-1 rounded-card bg-card p-2">
+      <div data-testid="item-list" className="flex flex-col gap-1 rounded-card bg-card p-2 shadow-card">
         <ListLink href={base} current={current === "summary"} title="Summary" />
         {attempt.itemIds.map((itemId, index) => (
           <ListLink

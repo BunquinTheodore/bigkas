@@ -13,6 +13,8 @@ A demo web portal for calibrated scoring of read aloud English: pronunciation, f
 5. Speech rate, average pause length, average pitch and mean intensity.
 6. A researcher report comparing scores with human ratings on fixed sample data.
 7. An Apple style interface for phones, tablets and laptops, light and dark.
+8. A 3D voice orb (three.js) that moves with the microphone, with a plain version where 3D is unavailable or reduced motion is on.
+9. A Read, Record, Submit guide, loading placeholders and plain explanations of every number.
 
 ## Run it
 
@@ -45,7 +47,7 @@ Playwright's WebKit build for Windows has no audio engine, so the audio steps ar
 
 ## Sample data
 
-Reading items are in `data/items.ts` until the real item bank replaces them. `npm run sample-data` rebuilds `data/sample-dataset.json` from a fixed seed. Its settings are not tuned to favour any model or method.
+Reading items are everyday English sentences and phrases in `data/items.ts`, until the real item bank replaces them. A changed text needs a new id. `npm run sample-data` rebuilds `data/sample-dataset.json` from a fixed seed. Its settings are not tuned to favour any model or method.
 
 ## Deploy
 
@@ -53,7 +55,7 @@ Import the repository into Vercel as a Next.js project. No environment variables
 
 ## Documents
 
-1. [Design](docs/superpowers/specs/2026-11-26-bigkas-poc-design.md)
+1. [Design](docs/superpowers/specs/2026-11-26-bigkas-poc-design.md) and the later [redesign](docs/superpowers/specs/2026-11-26-bigkas-redesign-design.md)
 2. [Web app flow](docs/flow.md)
 3. [Implementation plan](docs/superpowers/plans/2026-11-26-bigkas-demo.md)
 4. [Interface mockups](docs/mockups/apple-style.html), open the file in a browser

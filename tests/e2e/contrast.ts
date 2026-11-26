@@ -28,7 +28,12 @@ export async function lowContrast(page: Page): Promise<string[]> {
       const chain: Element[] = [];
       for (let e: Element | null = element; e; e = e.parentElement) chain.unshift(e);
       fill("#ffffff");
-      chain.forEach((e) => fill(getComputedStyle(e).backgroundColor));
+      chain.forEach((e) => {
+        fill(getComputedStyle(e).backgroundColor);
+        // The strongest part of the page wash, which is the hardest place to read.
+        const wash = e === document.body && getComputedStyle(e).getPropertyValue("--wash-peak").trim();
+        if (wash) fill(wash);
+      });
       const background = luminance();
       const style = getComputedStyle(element);
       fill(style.color);

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "bigkas",
+  title: { default: "Sign in, bigkas", template: "%s, bigkas" },
   description: "Calibrated read aloud speech scoring. Demo with simulated results.",
 };
 

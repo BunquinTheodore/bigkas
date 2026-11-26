@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Guard, type GuardContext } from "@/components/Guard";
 import { SessionCard } from "@/components/sessions/SessionCard";
 import { Screen } from "@/components/ui/Screen";
+import { LoadingBlocks } from "@/components/ui/Skeleton";
 import { TopBar } from "@/components/ui/TopBar";
 import { useNow } from "@/components/useNow";
 import { useSignOut } from "@/components/useSignOut";
@@ -12,6 +13,12 @@ import { ITEMS_PER_ATTEMPT, SESSIONS } from "@/lib/config";
 import { attemptStatus } from "@/lib/status";
 import { StoreError } from "@/lib/store/repository";
 import type { Attempt, SessionId } from "@/lib/types";
+
+/** The session to continue, or else the first one not started. */
+function nextSession(attempts: readonly Attempt[]): SessionId | undefined {
+  const unfinished = SESSIONS.find((s) => attempts.some((a) => a.sessionId === s.id && a.submittedAt === null));
+  return (unfinished ?? SESSIONS.find((s) => !attempts.some((a) => a.sessionId === s.id)))?.id;
+}
 
 /** The participant code and the signed in address. A long address wraps at the @ first. */
 function SignedIn({ code, email }: { code: string | null; email: string }) {
@@ -62,6 +69,7 @@ function Sessions({ profile, repo }: GuardContext) {
     <>
       <TopBar title="bigkas" onSignOut={signOut} />
       <Screen title="Reading sessions" subtitle={<SignedIn code={profile.participantCode} email={profile.email} />}>
+        {!attempts && !error && <LoadingBlocks />}
         {attempts && (
           <div className="grid gap-4 three:grid-cols-3">
             {SESSIONS.map((session) => {
@@ -72,6 +80,7 @@ function Sessions({ profile, repo }: GuardContext) {
                   title={session.title}
                   status={attemptStatus(attempt ?? null, now)}
                   submittedCount={attempt?.submittedCount ?? 0}
+                  featured={session.id === nextSession(attempts)}
                   onOpen={() => open(session.id, attempt)}
                 />
               );

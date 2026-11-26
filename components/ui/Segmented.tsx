@@ -17,7 +17,7 @@ export function Segmented<T extends string>({ label, value, options, onChange, d
           disabled={disabled}
           aria-pressed={option.value === value}
           onClick={() => onChange(option.value)}
-          className="min-h-11 rounded-full px-1 text-[13px] font-semibold whitespace-nowrap transition disabled:opacity-60 aria-pressed:bg-raised aria-pressed:shadow-sm sm:px-4 sm:text-sm"
+          className="min-h-11 rounded-full px-1 text-[13px] font-semibold whitespace-nowrap transition disabled:opacity-60 aria-pressed:bg-raised aria-pressed:shadow-raised sm:px-4 sm:text-sm"
         >
           {option.label}
         </button>

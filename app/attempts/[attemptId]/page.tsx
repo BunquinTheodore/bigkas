@@ -6,12 +6,14 @@ import { AttemptGate } from "@/components/AttemptGate";
 import { Guard } from "@/components/Guard";
 import { SessionSummary } from "@/components/results/SessionSummary";
 import { buttonClass } from "@/components/ui/Button";
+import { Pill } from "@/components/ui/Pill";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Screen } from "@/components/ui/Screen";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { TopBar } from "@/components/ui/TopBar";
 import { useNow } from "@/components/useNow";
 import { useSignOut } from "@/components/useSignOut";
-import { SESSIONS } from "@/lib/config";
+import { COMPLETE_MS, SESSIONS } from "@/lib/config";
 import { attemptStatus, type AttemptStatus } from "@/lib/status";
 import type { Repository } from "@/lib/store/repository";
 import type { Attempt } from "@/lib/types";
@@ -22,12 +24,22 @@ const MESSAGES: Partial<Record<AttemptStatus, string>> = {
   processing: "Analyzing your answers.",
 };
 
-function Waiting({ attempt, status }: { attempt: Attempt; status: AttemptStatus }) {
+function Waiting({ attempt, status, now }: { attempt: Attempt; status: AttemptStatus; now: number }) {
   const unfinished = status === "in-progress";
   return (
     <div className="flex flex-col items-center gap-4 text-center">
       <StatusPill status={status} submittedCount={attempt.submittedCount} />
       <p role="status">{MESSAGES[status]}</p>
+      {attempt.submittedAt !== null && (
+        <>
+          <ProgressBar
+            value={Math.min(COMPLETE_MS, Math.max(0, now - attempt.submittedAt))}
+            max={COMPLETE_MS}
+            label="Simulated analysis progress"
+          />
+          <Pill tone="tint">Simulated</Pill>
+        </>
+      )}
       <Link
         href={unfinished ? `/attempts/${attempt.id}/record` : "/sessions"}
         className={buttonClass(unfinished ? "primary" : "tinted", "w-full")}
@@ -40,7 +52,8 @@ function Waiting({ attempt, status }: { attempt: Attempt; status: AttemptStatus 
 
 function AttemptView({ attempt, repo }: { attempt: Attempt; repo: Repository }) {
   const signOut = useSignOut();
-  const status = attemptStatus(attempt, useNow());
+  const now = useNow();
+  const status = attemptStatus(attempt, now);
   const title = SESSIONS.find((s) => s.id === attempt.sessionId)?.title ?? "Session";
 
   return (
@@ -50,7 +63,7 @@ function AttemptView({ attempt, repo }: { attempt: Attempt; repo: Repository }) 
         <SessionSummary attempt={attempt} repo={repo} title={title} />
       ) : (
         <Screen title={title} width="narrow">
-          <Waiting attempt={attempt} status={status} />
+          <Waiting attempt={attempt} status={status} now={now} />
         </Screen>
       )}
     </>

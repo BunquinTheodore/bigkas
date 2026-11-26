@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/Button";
 import { Screen } from "@/components/ui/Screen";
+
+export const metadata: Metadata = { title: "Page not found" };
 
 /** Shown for any address the app does not have, so there is always a way back. */
 export default function NotFound() {

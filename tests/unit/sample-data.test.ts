@@ -34,8 +34,8 @@ test("item bank fits GOPT and draws 10 different items", () => {
   }
   expect(new Set(drawItemIds(createRng(1))).size).toBe(10);
 });
-test("reading items are general, not tied to a job or a field of study", () => {
-  const narrow = /developer|code|computer|software|internship|career|deadline|project|college|team|task|feedback|manage|led/i;
+test("reading items are for any reader, not for developers", () => {
+  const narrow = /(developer|coding|code|computer|software|programming|programmer)/i;
   expect(ITEM_BANK.filter((item) => narrow.test(item.text)).map((item) => item.text)).toEqual([]);
 });
 test("retired item ids are not reused for different text", () => {

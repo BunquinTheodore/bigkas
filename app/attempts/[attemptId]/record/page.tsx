@@ -4,10 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { AttemptGate } from "@/components/AttemptGate";
 import { Guard } from "@/components/Guard";
-import { RecordPanel } from "@/components/recorder/RecordPanel";
-import { Card } from "@/components/ui/Card";
+import { ItemAnswer } from "@/components/recorder/ItemAnswer";
 import { Container } from "@/components/ui/Container";
 import { Pill } from "@/components/ui/Pill";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { TopBar } from "@/components/ui/TopBar";
 import { useSignOut } from "@/components/useSignOut";
 import { ITEMS_PER_ATTEMPT, SESSIONS } from "@/lib/config";
@@ -19,21 +19,6 @@ interface RecordingProps {
   attempt: Attempt;
   repo: Repository;
   reload: () => Promise<void>;
-}
-
-function Progress({ done }: { done: number }) {
-  return (
-    <div
-      role="progressbar"
-      aria-label="Items submitted"
-      aria-valuemin={0}
-      aria-valuemax={ITEMS_PER_ATTEMPT}
-      aria-valuenow={done}
-      className="mt-3 h-1.5 overflow-hidden rounded-full bg-fill"
-    >
-      <div className="h-full bg-tint transition-[width]" style={{ width: `${(done / ITEMS_PER_ATTEMPT) * 100}%` }} />
-    </div>
-  );
 }
 
 /** The other tab saved this item, or the demo data was erased: either way the screen is out of date. */
@@ -82,22 +67,16 @@ function Recording({ attempt, repo, reload }: RecordingProps) {
     <>
       <TopBar title={session?.title ?? "bigkas"} back={{ label: "Sessions", href: "/sessions" }} onSignOut={signOut} />
       <main>
-        <Container className="pt-6 pb-12">
+        <Container className="rise pt-6 pb-12 short:pt-2 short:pb-4">
           <div className="flex items-center justify-between gap-3">
             <h1 ref={heading} tabIndex={-1} className="text-[22px] font-bold tracking-tight">
               Item {position} of {ITEMS_PER_ATTEMPT}
             </h1>
             <Pill>{item.type === "sentence" ? "Sentence" : "Phrase fragment"}</Pill>
           </div>
-          <Progress done={attempt.submittedCount} />
-          <div className="mt-6 grid gap-4 split:grid-cols-[3fr_2fr]">
-            <Card className="flex min-h-[200px] items-center justify-center">
-              <p className="text-center text-[28px] leading-snug font-semibold tracking-tight text-balance sm:text-[34px]">
-                {item.text}
-              </p>
-            </Card>
-            <RecordPanel key={position} onSubmit={save} />
-          </div>
+          <ProgressBar value={attempt.submittedCount} max={ITEMS_PER_ATTEMPT} label="Items submitted" className="mt-3 short:mt-2" />
+          {/* Not keyed by item, so the orb keeps drawing. The recorder returns to ready once saved. */}
+          <ItemAnswer text={item.text} onSubmit={save} />
         </Container>
       </main>
     </>

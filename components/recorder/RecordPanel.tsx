@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type Ref } from "react";
+import { VoiceOrb } from "@/components/orb/VoiceOrb";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useNow } from "@/components/useNow";
@@ -8,7 +9,7 @@ import { useObjectUrl } from "@/components/useObjectUrl";
 import { usePlayback } from "@/components/usePlayback";
 import { MAX_RECORDING_SECONDS } from "@/lib/config";
 import { LevelMeter } from "./LevelMeter";
-import { useRecorder, type SaveTake } from "./useRecorder";
+import type { useRecorder } from "./useRecorder";
 import { useStepFocus } from "./useStepFocus";
 
 const clock = (seconds: number) => `0:${String(Math.floor(seconds)).padStart(2, "0")}`;
@@ -26,9 +27,9 @@ function RecordButton({ ref, recording, onClick }: RecordButtonProps) {
       type="button"
       aria-label={recording ? "Stop" : "Record"}
       onClick={onClick}
-      className="grid size-[84px] place-items-center rounded-full border-4 border-secondary/60 transition active:scale-95"
+      className="grid size-[84px] shrink-0 place-items-center rounded-full border-4 border-secondary/60 shadow-raised transition active:scale-95 short:size-16"
     >
-      <span className={`bg-record ${recording ? "size-9 rounded-lg" : "size-16 rounded-full"}`} />
+      <span className={`bg-record ${recording ? "size-9 rounded-lg short:size-7" : "size-16 rounded-full short:size-12"}`} />
     </button>
   );
 }
@@ -62,8 +63,8 @@ function UploadButton({ onFile }: { onFile: (file: File) => void }) {
 }
 
 /** The recording card: record or upload, then play, redo or submit. */
-export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
-  const { state, level, record, stop, upload, submit, redo } = useRecorder(onSubmit);
+export function RecordPanel({ recorder }: { recorder: ReturnType<typeof useRecorder> }) {
+  const { state, level, record, stop, upload, submit, redo } = recorder;
   const take = state.name === "review" || state.name === "saving" ? state : null;
   const url = useObjectUrl(take?.wav ?? null);
   const play = usePlayback(url);
@@ -73,8 +74,13 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
   useStepFocus(state.name, recordButton, readyText);
 
   return (
-    <Card className="flex min-h-[320px] flex-col items-center justify-center gap-4">
-      <LevelMeter read={level} />
+    <Card className="flex flex-col items-center justify-center gap-2 sm:min-h-[360px] sm:gap-3 short:min-h-0 short:gap-1 short:p-3">
+      <VoiceOrb
+        read={level}
+        turning={state.name === "processing"}
+        className="h-[112px] sm:h-[180px] short:h-[72px]"
+        fallback={<LevelMeter read={level} />}
+      />
       {take ? (
         <>
           <p ref={readyText} tabIndex={-1} className="text-secondary">
@@ -103,7 +109,10 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
             recording={state.name === "recording"}
             onClick={state.name === "recording" ? stop : record}
           />
-          <Timer startedAt={state.name === "recording" ? state.startedAt : null} />
+          <div className="flex items-baseline gap-3">
+            <p className="text-[15px] font-semibold">{state.name === "recording" ? "Tap to stop" : "Tap to start"}</p>
+            <Timer startedAt={state.name === "recording" ? state.startedAt : null} />
+          </div>
           {state.name === "ready" && <UploadButton onFile={upload} />}
         </>
       )}

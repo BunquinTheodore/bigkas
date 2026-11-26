@@ -41,7 +41,7 @@ function ModelRows({ report, model }: { report: CategoryReport; model: ModelId }
 function ModelCard({ report, model }: { report: CategoryReport; model: ModelId }) {
   const { methods, coverage } = report.models[model];
   return (
-    <div className="rounded-card bg-card p-4">
+    <div className="rounded-card bg-card p-4 shadow-card">
       <h2 className="text-[15px] font-semibold">{MODEL_LABELS[model]}</h2>
       <p className="text-[13px] text-secondary">Coverage {percent(coverage)}</p>
       <div className="mt-3 grid grid-cols-[1.3fr_1fr_1fr_1.3fr] gap-x-2 gap-y-2 text-sm tabular-nums">
@@ -66,7 +66,7 @@ function ModelCard({ report, model }: { report: CategoryReport; model: ModelId }
 export function ReportTable({ report, caption }: { report: CategoryReport; caption: string }) {
   return (
     <div data-testid="report">
-      <div className="hidden rounded-card bg-card px-5 py-2 sm:block">
+      <div className="hidden rounded-card bg-card px-5 py-2 shadow-card sm:block">
         <table className="w-full table-fixed text-[15px] tabular-nums">
           <caption className="sr-only">{caption}</caption>
           <thead>

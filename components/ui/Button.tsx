@@ -3,7 +3,7 @@ import type { ComponentPropsWithRef } from "react";
 export type ButtonVariant = "primary" | "tinted" | "plain";
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-tint text-white",
+  primary: "bg-tint bg-linear-to-b from-tint to-[#0064cc] text-white shadow-primary disabled:shadow-none",
   tinted: "bg-fill text-tint-text",
   plain: "bg-transparent text-tint-text",
 };

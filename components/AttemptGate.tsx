@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Screen } from "@/components/ui/Screen";
+import { PageSkeleton } from "@/components/ui/Skeleton";
 import { TopBar } from "@/components/ui/TopBar";
 import { useSignOut } from "@/components/useSignOut";
 import type { Repository } from "@/lib/store/repository";
@@ -72,7 +73,7 @@ export function AttemptGate({ attemptId, repo, email, children }: AttemptGatePro
     void load();
   }, [load]);
 
-  if (attempt === "loading") return null;
+  if (attempt === "loading") return <PageSkeleton />;
   if (attempt === "missing") return <Missing />;
   if (attempt === "failed") return <Unreadable />;
   return <>{children(attempt, load)}</>;

@@ -7,16 +7,18 @@ interface ScreenProps {
   subtitle?: ReactNode;
   /** "auth" and "narrow" are single centred cards. "full" uses the whole container. */
   width?: "auth" | "narrow" | "full";
+  /** Decoration drawn above the title of a centred card. */
+  visual?: ReactNode;
   children: ReactNode;
 }
 
 const CENTRED = { auth: "max-w-[400px]", narrow: "max-w-[560px]" };
 
-export function Screen({ title, subtitle, width = "full", children }: ScreenProps) {
+export function Screen({ title, subtitle, width = "full", visual, children }: ScreenProps) {
   if (width === "full") {
     return (
       <main>
-        <Container className="pt-6 pb-12">
+        <Container className="rise pt-6 pb-12">
           <h1 className="text-[30px] leading-tight font-bold tracking-tight sm:text-[34px]">{title}</h1>
           {subtitle && <p className="mt-1 text-[15px] text-secondary">{subtitle}</p>}
           <div className="mt-6">{children}</div>
@@ -28,9 +30,10 @@ export function Screen({ title, subtitle, width = "full", children }: ScreenProp
   const middle = width === "auth";
   return (
     <main className={middle ? "flex min-h-dvh items-center" : ""}>
-      <Container className={`flex justify-center ${middle ? "py-8" : "py-12"}`}>
+      <Container className={`rise flex justify-center ${middle ? "py-8" : "py-12"}`}>
         <div className={`w-full ${CENTRED[width]}`}>
           <Card>
+            {visual && <div className="mb-3">{visual}</div>}
             <h1 className="text-center text-[28px] leading-tight font-bold tracking-tight">{title}</h1>
             <div className="mt-6">{children}</div>
           </Card>

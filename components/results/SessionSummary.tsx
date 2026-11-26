@@ -2,6 +2,7 @@
 
 import { Pill } from "@/components/ui/Pill";
 import { Screen } from "@/components/ui/Screen";
+import { LoadingBlocks } from "@/components/ui/Skeleton";
 import { summarize } from "@/lib/results";
 import type { Repository } from "@/lib/store/repository";
 import type { Attempt } from "@/lib/types";
@@ -31,6 +32,7 @@ export function SessionSummary({ attempt, repo, title }: SessionSummaryProps) {
           <span className="text-[13px] text-secondary">Means over the answered items</span>
         </div>
         {failed && <p role="alert" className="text-danger">The answers could not be loaded. Reload the page.</p>}
+        {!summary && !failed && <LoadingBlocks />}
         {summary && (
           <ScoreSection
             category={category}

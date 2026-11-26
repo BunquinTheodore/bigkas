@@ -3,7 +3,8 @@
 /*
  * Colour tokens from docs/mockups/apple-style.html. Light and dark follow the device.
  * Secondary and tint text are a step stronger than the mockup so that they keep a 4.5 to 1
- * contrast on the grey fill behind pills, buttons and the current list item.
+ * contrast on the grey fill behind pills, buttons and the current list item, also over the wash.
+ * The elevation tokens give depth: resting card, raised, top bar and the filled button.
  */
 :root {
   --font-stack: -apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif;
@@ -15,12 +16,17 @@
   --fill: rgba(120, 120, 128, 0.12);
   --bar: rgba(249, 249, 251, 0.72);
   --tint: #0071e3;
-  --tint-text: #005fc0;
+  --tint-text: #0058b8;
   --record: #ff3b30;
   --danger: #d70015;
   --green: #1e7a34;
   --orange: #a04800;
   --raised: #ffffff;
+  --wash-peak: rgba(94, 92, 230, 0.08);
+  --elev-card: 0 1px 2px rgba(20, 20, 50, 0.05), 0 10px 28px -10px rgba(20, 20, 50, 0.14);
+  --elev-raised: 0 2px 4px rgba(20, 20, 50, 0.08), 0 18px 36px -14px rgba(20, 20, 50, 0.26);
+  --elev-bar: 0 1px 0 rgba(20, 20, 50, 0.04), 0 10px 28px -18px rgba(20, 20, 50, 0.3);
+  --elev-primary: 0 1px 2px rgba(0, 70, 160, 0.25), 0 10px 20px -10px rgba(0, 113, 227, 0.65);
   color-scheme: light dark;
 }
 
@@ -39,6 +45,12 @@
     --green: #30d158;
     --orange: #ff9f0a;
     --raised: #48484a;
+    --wash-peak: rgba(94, 92, 230, 0.18);
+    /* Shadows barely show on black, so cards also get a faint light edge. */
+    --elev-card: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.04), 0 14px 32px -16px rgba(0, 0, 0, 0.9);
+    --elev-raised: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 36px -14px rgba(0, 0, 0, 0.95);
+    --elev-bar: 0 1px 0 rgba(255, 255, 255, 0.06);
+    --elev-primary: 0 10px 22px -10px rgba(41, 151, 255, 0.7);
   }
 }
 
@@ -58,6 +70,10 @@
   --color-orange: var(--orange);
   --color-raised: var(--raised);
   --font-sans: var(--font-stack);
+  --shadow-card: var(--elev-card);
+  --shadow-raised: var(--elev-raised);
+  --shadow-bar: var(--elev-bar);
+  --shadow-primary: var(--elev-primary);
 }
 
 @theme {
@@ -66,15 +82,55 @@
   --breakpoint-split: 56.25rem;
 }
 
+/* A short and wide screen, such as a phone held sideways: from 640 px wide, under 500 px tall. */
+@custom-variant short {
+  @media (min-width: 40rem) and (max-height: 31.1875rem) {
+    @slot;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@layer components {
+  /* Page content fades and rises once as it appears. */
+  .rise {
+    animation: rise 250ms ease-out;
+  }
+
+  /* Cards that can be opened lift under a pointer. */
+  @media (hover: hover) {
+    .lift {
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    /* The deeper shadow is a utility on the card, or the card's own shadow would win. */
+    .lift:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
 @layer base {
   body {
-    background: var(--bg);
+    background-color: var(--bg);
+    /* A still wash of blue into violet, strongest at the top. */
+    background-image: linear-gradient(180deg, var(--wash-peak), transparent 480px);
+    background-repeat: no-repeat;
     color: var(--label);
     font-family: var(--font-stack);
     font-size: 17px;
     line-height: 1.35;
     hyphens: none;
     -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    min-height: 100%;
   }
 
   button {

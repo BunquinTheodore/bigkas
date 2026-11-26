@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Guard } from "@/components/Guard";
 import { ReportTable } from "@/components/research/ReportTable";
+import { Explainer } from "@/components/ui/Explainer";
 import { Pill } from "@/components/ui/Pill";
 import { Screen } from "@/components/ui/Screen";
 import { Segmented } from "@/components/ui/Segmented";
@@ -17,6 +18,14 @@ import type { Category } from "@/lib/types";
 /** Computed once from the fixed sample data. Participant attempts have no ratings. */
 const REPORT = buildReport(SAMPLE_ROWS, FITS);
 const OPTIONS = CATEGORIES.map((value) => ({ value, label: CATEGORY_LABELS[value] }));
+
+const TERMS = [
+  ["Baseline", "The normalized score before calibration."],
+  ["MAE", "The average gap between score and human rating. Lower is closer."],
+  ["RMSE", "Like MAE, but larger gaps count for more."],
+  ["Spearman", "How well the scores keep the order of the ratings, from minus 1 to 1."],
+  ["Coverage", "The share of held out items that have a score."],
+] as const;
 
 function AgreementReport() {
   const signOut = useSignOut();
@@ -36,6 +45,7 @@ function AgreementReport() {
               <Segmented label="Category" value={category} options={OPTIONS} onChange={setCategory} />
             </div>
           </div>
+          <Explainer terms={TERMS} note="Sample data only." />
           <ReportTable report={report} caption={`Agreement for ${CATEGORY_LABELS[category]}`} />
           <p className="text-[13px] text-secondary">
             These numbers tell nothing about the real models. Baseline is not fitted to the rating scale, so lower

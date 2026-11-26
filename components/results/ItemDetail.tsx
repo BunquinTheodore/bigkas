@@ -5,6 +5,7 @@ import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { Screen } from "@/components/ui/Screen";
+import { LoadingBlocks } from "@/components/ui/Skeleton";
 import { useObjectUrl } from "@/components/useObjectUrl";
 import { usePlayback } from "@/components/usePlayback";
 import { ITEMS_PER_ATTEMPT } from "@/lib/config";
@@ -62,6 +63,7 @@ export function ItemDetail({ attempt, repo, position }: ItemDetailProps) {
           </Button>
         </Card>
         {failed && <p role="alert" className="text-danger">The answers could not be loaded. Reload the page.</p>}
+        {!data && !failed && <LoadingBlocks />}
         {result && (
           <ScoreSection
             category={category}

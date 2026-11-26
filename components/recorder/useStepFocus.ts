@@ -15,9 +15,11 @@ export function useStepFocus(
   const previous = useRef(step);
 
   useEffect(() => {
-    if (previous.current === step) return;
+    const from = previous.current;
+    if (from === step) return;
     previous.current = step;
-    if (step === "ready") start.current?.focus();
+    // After saving, the next item has arrived and its heading takes the focus instead.
+    if (step === "ready" && from !== "saving") start.current?.focus();
     if (step === "review") review.current?.focus();
   }, [step, start, review]);
 }

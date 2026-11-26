@@ -230,7 +230,7 @@ test("keyboard order follows what is on screen in the results", async ({ page })
   // Narrow: the scores are on top, so they come first.
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(async () => {
-    await page.getByRole("button", { name: "Prosody" }).focus();
+    await page.getByText("What do these numbers mean?").focus();
     await page.keyboard.press("Tab");
     await expect(page.getByRole("link", { name: "Summary", exact: true })).toBeFocused({ timeout: 500 });
   }).toPass();

@@ -32,8 +32,8 @@ export function toneFile(seconds = 2, peak = 0.3) {
   return { name: "tone.wav", mimeType: "audio/wav", buffer: Buffer.from(encodeWav(samples, rate)) };
 }
 
-/** Answers every item with an upload and waits for the results. Call page.clock.install() first. */
-export async function completeSession(page: Page) {
+/** Starts the first session and answers every item with an upload. Ends on the waiting screen. */
+export async function answerAll(page: Page) {
   await page.getByRole("button", { name: "Start" }).first().click();
   for (let n = 1; n <= 10; n++) {
     await expect(page.getByRole("heading", { name: `Item ${n} of 10` })).toBeVisible();
@@ -41,6 +41,11 @@ export async function completeSession(page: Page) {
     await page.getByRole("button", { name: "Submit" }).click();
   }
   await expect(page.getByText("Pending")).toBeVisible();
+}
+
+/** Answers every item and waits for the results. Call page.clock.install() first. */
+export async function completeSession(page: Page) {
+  await answerAll(page);
   await page.clock.fastForward(31_000);
-  await expect(page.getByText("Simulated")).toBeVisible();
+  await expect(page.getByTestId("score-region")).toBeVisible();
 }

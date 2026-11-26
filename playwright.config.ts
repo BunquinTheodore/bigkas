@@ -19,7 +19,12 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         permissions: ["microphone"],
         launchOptions: {
-          args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+          args: [
+            "--use-fake-ui-for-media-stream",
+            "--use-fake-device-for-media-stream",
+            // Drawing 3D in many headless pages at once is very slow. tests/e2e/orb.spec.ts turns it on.
+            "--disable-3d-apis",
+          ],
         },
       },
     },

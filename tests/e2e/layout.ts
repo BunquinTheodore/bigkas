@@ -27,6 +27,15 @@ export async function viewWidth(page: Page): Promise<number> {
 
 export async function box(locator: Locator) {
   await expect(locator).toBeVisible();
+  // Measure after the page has finished rising into place.
+  await locator.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+        .map((a) => a.finished),
+    ),
+  );
   const bounds = await locator.boundingBox();
   if (!bounds) throw new Error("Element has no box");
   return { ...bounds, right: bounds.x + bounds.width, bottom: bounds.y + bounds.height };

@@ -15,7 +15,7 @@ test("ten answers move from Pending to results @upload", async ({ page }) => {
   await page.clock.fastForward(11_000);
   await expect(page.getByText("Processing")).toBeVisible();
   await page.clock.fastForward(20_000);
-  await expect(page.getByText("Simulated")).toBeVisible();
+  await expect(page.getByText("Simulated", { exact: true })).toBeVisible();
   for (const model of ["GOPT", "HuBERT Base", "wav2vec 2.0 Large"]) await expect(page.getByText(model)).toBeVisible();
   await page.getByRole("button", { name: "Fluency" }).click();
   await page.getByRole("link", { name: /^Item 1\b/ }).click();

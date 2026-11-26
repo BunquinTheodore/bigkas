@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { ClearDemoData } from "@/components/ClearDemoData";
+import { VoiceOrb } from "@/components/orb/VoiceOrb";
 import { Screen } from "@/components/ui/Screen";
 import { Segmented } from "@/components/ui/Segmented";
 import { getRepository, storageAvailable } from "@/lib/store/client";
@@ -15,8 +16,19 @@ const ROLES = [
   { value: "researcher", label: "Researcher" },
 ] as const;
 
+const ROLE_HINTS: Record<Role, string> = {
+  participant: "Records answers.",
+  researcher: "Reads the agreement report.",
+};
+
 const BLOCKED = "This browser is blocking storage, so the demo cannot run. Leave private mode or allow site data.";
 const FAILED = "Sign in did not work. Try again, or check that this browser allows site data.";
+
+/** The quiet orb above the title, or a still circle where 3D is unavailable. */
+function SignInOrb() {
+  const still = <span className="size-[88px] rounded-full bg-linear-to-br from-[#0071e3] to-[#7d5fff] shadow-primary short:size-14" />;
+  return <VoiceOrb className="h-[120px] short:h-[72px]" fallback={still} />;
+}
 
 export default function SignInPage() {
   const router = useRouter();
@@ -49,7 +61,7 @@ export default function SignInPage() {
   }
 
   return (
-    <Screen title="bigkas" width="auth">
+    <Screen title="bigkas" width="auth" visual={<SignInOrb />}>
       <p className="-mt-4 text-center text-[15px] text-secondary">Calibrated read aloud speech scoring</p>
       <form onSubmit={signIn} className="mt-6 flex flex-col gap-4">
         <label className="flex flex-col gap-2 text-[15px] font-semibold">
@@ -63,6 +75,7 @@ export default function SignInPage() {
           />
         </label>
         <Segmented label="Role" value={role} options={ROLES} onChange={setRole} disabled={!ready} />
+        <p className="-mt-2 text-center text-[13px] text-secondary">{ROLE_HINTS[role]}</p>
         <Button type="submit" variant="primary" className="w-full" disabled={!ready || error === BLOCKED}>
           Continue
         </Button>

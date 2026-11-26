@@ -54,6 +54,58 @@ test("a recording whose stop timer runs late is kept, not refused", async ({ pag
   await expect(page.getByText("Answer ready, 0:30")).toBeVisible();
 });
 
+/** Holds back the page scripts, as a slow connection does, until the returned function is called. */
+async function holdScripts(page: Page) {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route("**/*.js*", async (route) => {
+    await held;
+    await route.continue();
+  });
+  return release;
+}
+
+test("an email typed before the page has loaded is the one signed in", async ({ page }) => {
+  const release = await holdScripts(page);
+  await page.goto("/", { waitUntil: "commit" });
+  await page.getByLabel("Email").fill("slow@example.com");
+  release();
+  await page.waitForLoadState("networkidle");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByLabel("I am 18 or older").check();
+  await page.getByRole("button", { name: "Agree" }).click();
+  await expect(page.getByRole("main").getByText("slow@example.com")).toBeVisible();
+});
+
+test("the sign in buttons wait until the page is ready", async ({ page }) => {
+  const release = await holdScripts(page);
+  await page.goto("/", { waitUntil: "commit" });
+  for (const name of ["Participant", "Researcher", "Continue"]) {
+    await expect(page.getByRole("button", { name })).toBeDisabled();
+  }
+  release();
+  for (const name of ["Participant", "Researcher", "Continue"]) {
+    await expect(page.getByRole("button", { name })).toBeEnabled();
+  }
+});
+
+test("a sign in saved without an email counts as signed out", async ({ page }) => {
+  await signIn(page, "Participant");
+  await page.evaluate(() => localStorage.setItem("bigkas.current", JSON.stringify({ email: "", role: "participant" })));
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        indexedDB.open("bigkas").onsuccess = (event) => {
+          const tx = (event.target as IDBOpenDBRequest).result.transaction("profiles", "readwrite");
+          tx.objectStore("profiles").put({ email: "", participantCode: "P009", consentedAt: 1 });
+          tx.oncomplete = () => resolve();
+        };
+      }),
+  );
+  await page.goto("/sessions");
+  await expect(page).toHaveURL("/");
+});
+
 test("a consent that cannot be saved says so", async ({ page }) => {
   await breakWrites(page, "profiles");
   await page.goto("/");

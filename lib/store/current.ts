@@ -12,7 +12,8 @@ const KEY = "bigkas.current";
 export function readCurrent(): Current | null {
   try {
     const value = JSON.parse(window.localStorage.getItem(KEY) ?? "null") as Partial<Current> | null;
-    if (!value || typeof value.email !== "string") return null;
+    // An empty address was saved by an earlier version when the page was slow to load.
+    if (!value || typeof value.email !== "string" || !value.email) return null;
     if (value.role !== "participant" && value.role !== "researcher") return null;
     return { email: value.email, role: value.role };
   } catch {

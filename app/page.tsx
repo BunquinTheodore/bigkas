@@ -20,16 +20,21 @@ const FAILED = "Sign in did not work. Try again, or check that this browser allo
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("participant");
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    storageAvailable().then((available) => setError(available ? null : BLOCKED));
+    storageAvailable().then((available) => {
+      setError(available ? null : BLOCKED);
+      setReady(true);
+    });
   }, []);
 
-  async function signIn(event: FormEvent) {
+  async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // Read the field itself: text typed or autofilled before the page loaded never reaches state.
+    const email = String(new FormData(event.currentTarget).get("email") ?? "");
     setError(null);
     try {
       const repo = await getRepository();
@@ -50,16 +55,15 @@ export default function SignInPage() {
         <label className="flex flex-col gap-2 text-[15px] font-semibold">
           Email
           <input
+            name="email"
             type="email"
             required
             autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
             className="min-h-11 w-full rounded-xl bg-fill px-4 text-[17px] font-normal"
           />
         </label>
-        <Segmented label="Role" value={role} options={ROLES} onChange={setRole} />
-        <Button type="submit" variant="primary" className="w-full" disabled={error === BLOCKED}>
+        <Segmented label="Role" value={role} options={ROLES} onChange={setRole} disabled={!ready} />
+        <Button type="submit" variant="primary" className="w-full" disabled={!ready || error === BLOCKED}>
           Continue
         </Button>
         {error && (

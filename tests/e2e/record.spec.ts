@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 });
 test("record with the microphone and submit", async ({ page }) => {
   await page.getByRole("button", { name: "Record" }).click();
-  await page.waitForTimeout(1600);
+  await page.waitForTimeout(2200);
   await page.getByRole("button", { name: "Stop" }).click();
   await expect(page.getByRole("button", { name: "Play" })).toBeEnabled();
   await page.getByRole("button", { name: "Submit" }).click();

@@ -51,3 +51,28 @@ for (const width of WIDTHS) {
     await expectNoOverflow(page);
   });
 }
+
+for (const width of WIDTHS) {
+  test(`record page is balanced at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await signIn(page, "Participant");
+    await page.getByRole("button", { name: "Start" }).first().click();
+    const heading = await box(page.getByRole("heading", { level: 1, name: "Item 1 of 10" }));
+    const cards = page.getByTestId("card");
+    await expect(cards).toHaveCount(2);
+    const [text, controls] = await Promise.all([0, 1].map((i) => box(cards.nth(i))));
+    const barTitle = await box(page.getByTestId("bar-title"));
+    const signOut = await box(page.getByTestId("bar-action"));
+    expectSame([barTitle.x, heading.x, text.x]);
+    expectSame([signOut.right, controls.right]);
+    if (width >= 900) {
+      expectSame([text.y, controls.y]);
+      expectSame([text.bottom, controls.bottom]);
+      expect(text.width).toBeGreaterThan(controls.width);
+    } else {
+      expectSame([text.width, controls.width]);
+      expect(controls.y).toBeGreaterThan(text.bottom);
+    }
+    await expectNoOverflow(page);
+  });
+}

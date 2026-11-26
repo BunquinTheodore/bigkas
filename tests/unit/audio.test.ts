@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { downmix, rejectSamples } from "@/lib/audio/process";
+import { downmix, processAudio, rejectSamples } from "@/lib/audio/process";
 import { encodeWav } from "@/lib/audio/wav";
 
 const tone = (seconds: number, peak = 0.5) => new Float32Array(Math.round(seconds * 16000)).fill(peak);
@@ -18,4 +18,9 @@ test("downmix and limits", () => {
   expect(rejectSamples(tone(30.6), 16000)).toBe("too-long");
   expect(rejectSamples(tone(2, 0.005), 16000)).toBe("silent");
   expect(rejectSamples(tone(2, 0.02), 16000)).toBeNull();
+});
+
+test("a browser without Web Audio is reported as such, not as a bad file", async () => {
+  expect(typeof AudioContext).toBe("undefined"); // Node has no Web Audio either
+  expect(await processAudio(new Blob([new Uint8Array(16)]))).toEqual({ ok: false, reason: "unsupported" });
 });

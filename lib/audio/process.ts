@@ -9,13 +9,14 @@ import {
 } from "../config";
 import { encodeWav } from "./wav";
 
-export type Rejection = "unreadable" | "too-large" | "too-short" | "too-long" | "silent";
+export type Rejection = "unsupported" | "unreadable" | "too-large" | "too-short" | "too-long" | "silent";
 
 export type ProcessResult =
   | { ok: true; wav: ArrayBuffer; durationMs: number }
   | { ok: false; reason: Rejection };
 
 export const REJECTION_MESSAGES: Record<Rejection, string> = {
+  unsupported: "This browser cannot process audio. Open this page in Safari or Chrome.",
   unreadable: "This file could not be read as audio.",
   "too-large": "Files must be 10 MB or smaller.",
   "too-short": "Audio must be at least 1 second long.",
@@ -60,8 +61,11 @@ async function resample(samples: Float32Array, sampleRate: number): Promise<Floa
   return (await offline.startRendering()).getChannelData(0);
 }
 
+const hasWebAudio = () => typeof AudioContext !== "undefined" && typeof OfflineAudioContext !== "undefined";
+
 export async function processAudio(blob: Blob): Promise<ProcessResult> {
   if (blob.size > MAX_UPLOAD_BYTES) return { ok: false, reason: "too-large" };
+  if (!hasWebAudio()) return { ok: false, reason: "unsupported" };
   const decoded = await decode(blob);
   if (!decoded) return { ok: false, reason: "unreadable" };
   const channels = Array.from({ length: decoded.numberOfChannels }, (_, c) => decoded.getChannelData(c));

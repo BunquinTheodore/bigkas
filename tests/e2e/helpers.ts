@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { test, type Page } from "@playwright/test";
 import { encodeWav } from "../../lib/audio/wav";
 
 /** Signs in from the start page. Participants also agree to the consent notice. */
@@ -14,6 +14,12 @@ export async function signIn(page: Page, role: "Participant" | "Researcher", ema
   await page.getByLabel("I am 18 or older").check();
   await page.getByRole("button", { name: "Agree" }).click();
   await page.waitForURL(/\/sessions$/);
+}
+
+/** Playwright's WebKit build for Windows ships without Web Audio, so audio steps cannot run there. */
+export async function skipWithoutWebAudio(page: Page) {
+  const available = await page.evaluate(() => typeof AudioContext !== "undefined");
+  test.skip(!available, "This browser build has no Web Audio. Test on a real iPhone instead.");
 }
 
 /** A short 440 Hz tone as an uploadable WAV file. */

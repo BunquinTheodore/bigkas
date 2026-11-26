@@ -61,7 +61,7 @@ function Sessions({ profile, repo }: GuardContext) {
           </div>
         )}
         {error && (
-          <p role="alert" className="mt-4 text-[15px] text-record">
+          <p role="alert" className="mt-4 text-[15px] text-danger">
             {error}
           </p>
         )}

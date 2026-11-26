@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Pill } from "@/components/ui/Pill";
 import { Screen } from "@/components/ui/Screen";
 import { useObjectUrl } from "@/components/useObjectUrl";
+import { usePlayback } from "@/components/usePlayback";
 import { ITEMS_PER_ATTEMPT } from "@/lib/config";
 import { getItem } from "@/lib/items";
 import type { Repository } from "@/lib/store/repository";
@@ -44,6 +45,7 @@ export function ItemDetail({ attempt, repo, position }: ItemDetailProps) {
   const response = data?.responses.find((r) => r.position === position);
   const result = data?.results.find((r) => r.position === position);
   const url = useObjectUrl(response?.wav ?? null);
+  const play = usePlayback(url);
   const step = (n: number) => (n >= 1 && n <= ITEMS_PER_ATTEMPT ? `/attempts/${attempt.id}/items/${n}` : null);
 
   return (
@@ -55,11 +57,11 @@ export function ItemDetail({ attempt, repo, position }: ItemDetailProps) {
             {response && <Pill>{response.source === "recorded" ? "Recorded" : "Uploaded"}</Pill>}
           </div>
           <p className="text-[22px] leading-snug font-semibold">{getItem(attempt.itemIds[position - 1]).text}</p>
-          <Button className="self-start" disabled={!url} onClick={() => url && void new Audio(url).play()}>
+          <Button className="self-start" disabled={!url} onClick={play}>
             Play answer
           </Button>
         </Card>
-        {failed && <p role="alert" className="text-record">The answers could not be loaded. Reload the page.</p>}
+        {failed && <p role="alert" className="text-danger">The answers could not be loaded. Reload the page.</p>}
         {result && (
           <ScoreSection
             category={category}

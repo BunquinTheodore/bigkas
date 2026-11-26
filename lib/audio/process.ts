@@ -29,11 +29,35 @@ export function downmix(channels: readonly Float32Array[]): Float32Array {
   return Float32Array.from(channels[0], (_, i) => channels.reduce((sum, c) => sum + c[i], 0) / channels.length);
 }
 
+/** False when the length is unknown (NaN or Infinity). */
+const isTooLong = (seconds: number) =>
+  Number.isFinite(seconds) && seconds > MAX_RECORDING_SECONDS + DURATION_TOLERANCE_SECONDS;
+
 export function rejectSamples(samples: Float32Array, sampleRate: number): Rejection | null {
   const seconds = samples.length / sampleRate;
   if (seconds < MIN_RECORDING_SECONDS) return "too-short";
-  if (seconds > MAX_RECORDING_SECONDS + DURATION_TOLERANCE_SECONDS) return "too-long";
+  if (isTooLong(seconds)) return "too-long";
   return samples.some((s) => Math.abs(s) >= SILENCE_PEAK) ? null : "silent";
+}
+
+const METADATA_TIMEOUT_MS = 3000;
+
+/** The length the browser reports without decoding the audio. NaN or Infinity when it cannot tell. */
+function reportedSeconds(blob: Blob): Promise<number> {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    const url = URL.createObjectURL(blob);
+    const done = (seconds: number) => {
+      clearTimeout(timer);
+      URL.revokeObjectURL(url);
+      resolve(seconds);
+    };
+    const timer = setTimeout(() => done(Number.NaN), METADATA_TIMEOUT_MS);
+    audio.preload = "metadata";
+    audio.onloadedmetadata = () => done(audio.duration);
+    audio.onerror = () => done(Number.NaN);
+    audio.src = url;
+  });
 }
 
 /** Null when the browser cannot read the file. The speaker is told so. */
@@ -66,8 +90,11 @@ const hasWebAudio = () => typeof AudioContext !== "undefined" && typeof OfflineA
 export async function processAudio(blob: Blob): Promise<ProcessResult> {
   if (blob.size > MAX_UPLOAD_BYTES) return { ok: false, reason: "too-large" };
   if (!hasWebAudio()) return { ok: false, reason: "unsupported" };
+  // A long file can be small on disk but huge once decoded, enough to crash a phone.
+  if (isTooLong(await reportedSeconds(blob))) return { ok: false, reason: "too-long" };
   const decoded = await decode(blob);
   if (!decoded) return { ok: false, reason: "unreadable" };
+  if (isTooLong(decoded.duration)) return { ok: false, reason: "too-long" };
   const channels = Array.from({ length: decoded.numberOfChannels }, (_, c) => decoded.getChannelData(c));
   const mono = downmix(channels);
   const reason = rejectSamples(mono, decoded.sampleRate);

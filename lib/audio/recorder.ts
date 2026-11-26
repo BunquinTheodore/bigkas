@@ -14,15 +14,21 @@ const CONSTRAINTS: MediaStreamConstraints = {
 
 const stopTracks = (stream: MediaStream) => stream.getTracks().forEach((track) => track.stop());
 
-/** Calls `onInterrupted` if the microphone is lost or the page is hidden while recording. */
-function watchInterruptions(stream: MediaStream, onInterrupted: () => void): () => void {
+/** A lost microphone, or a muted one such as during a phone call. */
+const TRACK_EVENTS = ["ended", "mute"] as const;
+
+/** Calls `onInterrupted` if the microphone or recorder fails, or the page is hidden while recording. */
+function watchInterruptions(stream: MediaStream, recorder: MediaRecorder, onInterrupted: () => void): () => void {
   const onVisibility = () => {
     if (document.visibilityState === "hidden") onInterrupted();
   };
-  stream.getAudioTracks().forEach((track) => track.addEventListener("ended", onInterrupted));
+  const tracks = stream.getAudioTracks();
+  tracks.forEach((track) => TRACK_EVENTS.forEach((name) => track.addEventListener(name, onInterrupted)));
+  recorder.addEventListener("error", onInterrupted);
   document.addEventListener("visibilitychange", onVisibility);
   return () => {
-    stream.getAudioTracks().forEach((track) => track.removeEventListener("ended", onInterrupted));
+    tracks.forEach((track) => TRACK_EVENTS.forEach((name) => track.removeEventListener(name, onInterrupted)));
+    recorder.removeEventListener("error", onInterrupted);
     document.removeEventListener("visibilitychange", onVisibility);
   };
 }
@@ -52,7 +58,7 @@ function capture(stream: MediaStream, onInterrupted: () => void): ActiveRecordin
     if (event.data.size > 0) chunks.push(event.data);
   };
   const input = meter(stream);
-  const unwatch = watchInterruptions(stream, onInterrupted);
+  const unwatch = watchInterruptions(stream, recorder, onInterrupted);
   const release = () => {
     unwatch();
     stopTracks(stream);

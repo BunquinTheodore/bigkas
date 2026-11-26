@@ -4,6 +4,7 @@ import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useNow } from "@/components/useNow";
 import { useObjectUrl } from "@/components/useObjectUrl";
+import { usePlayback } from "@/components/usePlayback";
 import { MAX_RECORDING_SECONDS } from "@/lib/config";
 import { LevelMeter } from "./LevelMeter";
 import { useRecorder, type SaveTake } from "./useRecorder";
@@ -56,6 +57,7 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
   const { state, level, record, stop, upload, submit, redo } = useRecorder(onSubmit);
   const take = state.name === "review" || state.name === "saving" ? state : null;
   const url = useObjectUrl(take?.wav ?? null);
+  const play = usePlayback(url);
   const message = state.name === "ready" || state.name === "review" ? state.message : null;
 
   return (
@@ -65,7 +67,7 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
         <>
           <p className="text-secondary">Answer ready, {clock(take.durationMs / 1000)}</p>
           <div className="grid w-full grid-cols-3 gap-2">
-            <Button className="px-2" disabled={!url} onClick={() => url && void new Audio(url).play()}>
+            <Button className="px-2" disabled={!url} onClick={play}>
               Play
             </Button>
             <Button className="px-2" disabled={state.name === "saving"} onClick={redo}>
@@ -88,7 +90,7 @@ export function RecordPanel({ onSubmit }: { onSubmit: SaveTake }) {
         </>
       )}
       {message && (
-        <p role="alert" className="text-center text-[15px] text-record">
+        <p role="alert" className="text-center text-[15px] text-danger">
           {message}
         </p>
       )}

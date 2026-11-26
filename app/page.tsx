@@ -61,7 +61,7 @@ export default function SignInPage() {
           Continue
         </Button>
         {error && (
-          <p role="alert" className="text-center text-[15px] text-record">
+          <p role="alert" className="text-center text-[15px] text-danger">
             {error}
           </p>
         )}

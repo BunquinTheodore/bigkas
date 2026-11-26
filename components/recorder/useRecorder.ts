@@ -20,7 +20,15 @@ export function useRecorder(save: SaveTake) {
   const [state, dispatch] = useReducer(panelReducer, { name: "ready", message: null });
   const [level, setLevel] = useState<(() => number) | null>(null);
   const active = useRef<ActiveRecording | null>(null);
-  const busy = useRef(false);
+  const starting = useRef(false);
+  const saving = useRef(false);
+  // A new number whenever a waiting microphone request is no longer wanted.
+  const request = useRef(0);
+
+  const abandonRequest = useCallback(() => {
+    request.current += 1;
+    starting.current = false;
+  }, []);
 
   /** Takes the running recording, if any, so only one caller can finish it. */
   const take = useCallback(() => {
@@ -43,29 +51,33 @@ export function useRecorder(save: SaveTake) {
   }, [take]);
 
   async function record() {
-    if (busy.current || active.current) return;
-    busy.current = true;
+    if (starting.current || active.current) return;
+    starting.current = true;
+    const ticket = ++request.current;
     try {
       const recording = await startRecording(interrupt);
+      // Granted too late: the speaker uploaded a file or left the item. Release the microphone.
+      if (ticket !== request.current) return recording.cancel();
       active.current = recording;
       setLevel(() => recording.level);
       dispatch({ type: "record", now: Date.now() });
     } catch (error) {
       console.warn("Microphone unavailable", error);
-      dispatch({ type: "micUnavailable" });
+      if (ticket === request.current) dispatch({ type: "micUnavailable" });
     } finally {
-      busy.current = false;
+      if (ticket === request.current) starting.current = false;
     }
   }
 
   async function upload(file: File) {
+    abandonRequest();
     dispatch({ type: "file" });
     dispatch({ type: "processed", result: await check(file), source: "uploaded" });
   }
 
   async function submit() {
-    if (state.name !== "review" || busy.current) return;
-    busy.current = true;
+    if (state.name !== "review" || saving.current) return;
+    saving.current = true;
     dispatch({ type: "submit" });
     try {
       await save(state.wav, state.durationMs, state.source);
@@ -74,7 +86,7 @@ export function useRecorder(save: SaveTake) {
       console.error("The answer was not saved", error);
       dispatch({ type: "saveFailed" });
     } finally {
-      busy.current = false;
+      saving.current = false;
     }
   }
 
@@ -86,7 +98,13 @@ export function useRecorder(save: SaveTake) {
   }, [state.name, stop]);
 
   // Release the microphone when the item changes or the page closes.
-  useEffect(() => () => active.current?.cancel(), []);
+  useEffect(
+    () => () => {
+      abandonRequest();
+      active.current?.cancel();
+    },
+    [abandonRequest],
+  );
 
   return { state, level, record, stop, upload, submit, redo: () => dispatch({ type: "redo" }) };
 }

@@ -30,7 +30,7 @@ export function SessionSummary({ attempt, repo, title }: SessionSummaryProps) {
           <Pill tone="tint">Simulated</Pill>
           <span className="text-[13px] text-secondary">Means over the answered items</span>
         </div>
-        {failed && <p role="alert" className="text-record">The answers could not be loaded. Reload the page.</p>}
+        {failed && <p role="alert" className="text-danger">The answers could not be loaded. Reload the page.</p>}
         {summary && (
           <ScoreSection
             category={category}
